@@ -1,0 +1,12 @@
+## Interface: 60000
+## Title: Probably [|cffa9013fMirakuru Rotations|r]
+## Notes: ProbablyEngine Custom Rotations by Mirakuru
+## Dependencies: Probably
+## Author: Mirakuru
+## Version: 1.0
+
+-- Library References
+libs\Helpers.lua
+
+-- Rotations
+Rotations\Warlock\Affliction.lua
