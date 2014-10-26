@@ -46,7 +46,7 @@ local combatRotation = {
 		
 		-- Dark Soul
 		{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
-	}, {"modifier.cooldown"}},
+	}, {"modifier.cooldown", "target.boss"}},
 	
 	-- Talents --
 	{"!108359", {	-- Dark Regeneration
@@ -107,7 +107,7 @@ local combatRotation = {
 		{"!27243", { "!target.debuff(27243)", "!target.debuff(114790)", "!modifier.last(114790)", "!player.moving"}},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"},
-	}, { "player.firehack", "target.area(10).enemies >= 7" }},
+	}, {"player.firehack", "target.area(10).enemies >= 5", "modifier.multitarget"}},
 	
 	{{	-- Non-Firehack Support
 		{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
@@ -130,7 +130,30 @@ local combatRotation = {
 		{"!27243", {"!target.debuff(27243)", "!target.debuff(114790)", "!modifier.last(114790)", "!player.moving"}},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"},
-	}, {"!player.firehack", "modifier.control"}},
+	}, {"!player.firehack", "modifier.control", "modifier.multitarget"}},
+	
+	-- Multi-dotting --
+	{{
+		-- Agony
+		{"!980", {"!mouseover.debuff(980)", "!player.casting(48181)"}, "mouseover"},
+		{"!980", {"mouseover.debuff(980).duration < 6", "!player.casting(48181)"}, "mouseover"},
+		-- Unstable Affliction
+		{"!30108", {
+			"!mouseover.debuff(30108)",
+			"!player.casting(48181)",
+			"!player.moving",
+			"!modifier.last(30108)",
+		}, "mouseover"},
+		{"!30108", {
+			"mouseover.debuff(30108).duration < 6",
+			"!player.casting(48181)",
+			"!player.moving",
+			"!modifier.last(30108)",
+		}, "mouseover"},
+		-- Corruption
+		{"!172", {"!mouseover.debuff(146739)", "!player.casting(48181)"}, "mouseover"},
+		{"!172", {"mouseover.debuff(146739).duration < 6", "!player.casting(48181)"}, "mouseover"},
+	}, "modifier.multitarget"},
 	
 	-- Regular Rotation --
 	{{	-- Firehack Support
@@ -187,7 +210,7 @@ local combatRotation = {
 		{"1454", "player.mana < 40"},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"},
-	}, {"player.firehack", "target.area(10).enemies < 7"}},
+	}, {"player.firehack", "target.area(10).enemies < 5"}},
 	
 	{{	-- Non-Firehack Support
 		{{	-- Attempt proper Haunt usage and shard pooling
