@@ -32,24 +32,13 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
 	end
 end)
-function miLib.checkProcs(checkType, numProcs)
-	local checkType, numProcs
-	
-	if not checkType or checkType == nil then return false end
-	if checkType == "int" then
-		if numProcs ~= nil then
-			if miLib.hasIntProcs >= numProcs then return true end
-			return false
-		elseif miLib.hasIntProcs > 0 then return true end
-		return false
-	end
-	if checkType == "affliction" then
-		if numProcs ~= nil then
-			if miLib.affAuraProc >= numProcs then return true end
-			return false
-		elseif miLib.affAuraProc > 0 then return true end
-		return false
-	end
+function miLib.affProcs()
+	if miLib.affAuraProc >= 1 then return true end
+	return false
+end
+function miLib.intProcs()
+	if miLib.hasIntProcs >= 1 then return true end
+	return false
 end
 
 --[[

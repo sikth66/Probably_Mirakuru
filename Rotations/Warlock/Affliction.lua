@@ -27,47 +27,20 @@ local combatRotation = {
 		{"!33702", "player.spell(33702).cooldown = 0" },
 		{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
 		
-		{{	-- Guardians with FireHack support
-			{"!18540", {	-- Doomguard
-				"!talent(7, 3)",
-				"target.area(10).enemies < 5",
-				"player.spell(18540).cooldown = 0",
-			}},
-			{"!1122", {	-- Infernal
-				"!talent(7, 3)",
-				"target.area(10).enemies >= 5",
-				"player.spell(1122).cooldown = 0",
-			}},
-			{"!112927", {	-- Terrorguard
-				"!talent(7, 3)",
-				"talent(5, 1)",
-				"target.area(10).enemies < 5",
-				"player.spell(112927).cooldown = 0",
-			}},
-			{"!140762", {	-- Abyssal
-				"!talent(7, 3)",
-				"talent(5, 1)",
-				"target.area(10).enemies >= 5",
-				"player.spell(140762).cooldown = 0",
-			}},
-		}, "player.firehack"},
-		
-		{{	-- Guardians without FireHack support
-			{"!18540", {	-- Doomguard
-				"!talent(7, 3)",
-				"player.spell(18540).cooldown = 0",
-			}},
-			{"!112927", {	-- Terrorguard
-				"!talent(7, 3)",
-				"talent(5, 1)",
-				"player.spell(112927).cooldown = 0",
-			}},
-		}, "!player.firehack"},
+		{"!18540", {	-- Doomguard
+			"!talent(7, 3)",
+			"player.spell(18540).cooldown = 0",
+		}},
+		{"!112927", {	-- Terrorguard
+			"!talent(7, 3)",
+			"talent(5, 1)",
+			"player.spell(112927).cooldown = 0",
+		}},
 		
 		-- Archimonde's Darkness
 		{{
 			{"!113860", "player.spell(113860).charges = 2"},
-			{"!113860", "@miLib.checkProcs('int')"},
+			{"!113860", "@miLib.intProcs()"},
 			{"!113860", "target.health <= 10"},
 		}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
 		
@@ -163,13 +136,13 @@ local combatRotation = {
 	{{	-- Firehack Support
 		{{	-- Attempt proper Haunt usage and shard pooling
 			{{
-				{"!48181", "@miLib.checkProcs('affliction')"},
+				{"!48181", "@miLib.affProcs()"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
 			}, "target.debuff(48181).duration < 4"},
 			{{
-				{"!48181", "@miLib.checkProcs('affliction')"},
+				{"!48181", "@miLib.affProcs()"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
@@ -219,13 +192,13 @@ local combatRotation = {
 	{{	-- Non-Firehack Support
 		{{	-- Attempt proper Haunt usage and shard pooling
 			{{
-				{"!48181", "@miLib.checkProcs('affliction')"},
+				{"!48181", "@miLib.affProcs()"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
 			}, "target.debuff(48181).duration < 4"},
 			{{
-				{"!48181", "@miLib.checkProcs('affliction')"},
+				{"!48181", "@miLib.affProcs()"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
