@@ -3,21 +3,56 @@
 	Created by Mirakuru
 ]]
 miLib = {}
+miLib.hasIntProcs = 0
+miLib.affAuraProc = 0
 
-function miLib.hasAuraOrProc()
-	local procs = {113860,113858,113861,114206,32182,80353,2825,90355,108508,177051,177046,176875,176942,177594,126705,126683,138963,138703,138788,146218,146046,146202,148906,104993,137590,148897,145164,145085,171982}
-	for i=1,#procs do
-		if UnitBuff("player", GetSpellInfo(procs[i]), nil, nil) then
-			if select(4,UnitBuff("player", GetSpellInfo(procs[i]), nil, nil)) ~= 0
-				and select(4,UnitBuff("player", GetSpellInfo(procs[i]), nil, nil)) < 6 then return false end
-			return true
+ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
+	local event		= select(2, ...)
+	local source	= select(4, ...)
+	local spell		= select(12, ...)
+	local stacks	= select(16, ...)
+	local affAuras = {[113860] = true,[32182] = true,[80353] = true,[2825] = true,[90355] = true,[177051] = true,[177046] = true,[176875] = true,[176942] = true,[177594] = true,[126705] = true,[126683] = true,[146218] = true,[146046] = true,[146202] = true,[148906] = true,[137590] = true,[14889] = true}
+	local intProcs = {[146047] = true,[104993] = true,[148907] = true,[146184] = true,[177594] = true,[126683] = true,[126706] = true}
+	
+	if event == "SPELL_AURA_APPLIED" and source == UnitGUID("player") then
+		if affAuras[spell] ~= nil then
+			if stacks ~= nil then
+				if stacks >= 6 then miLib.affAuraProc = miLib.affAuraProc + 1 end
+			else miLib.affAuraProc = miLib.affAuraProc + 1 end
 		end
+		if intProcs[spell] ~= nil then
+			if stacks ~= nil then
+				if stacks >= 6 then miLib.hasIntProcs = miLib.hasIntProcs + 1 end
+			else miLib.hasIntProcs = miLib.hasIntProcs + 1 end
+		end
+	end
+
+	if event == "SPELL_AURA_REMOVED" and source == UnitGUID("player") then
+		if intProcs[spell] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs - 1 end
+		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
+	end
+end)
+function miLib.checkProcs(checkType, numProcs)
+	local checkType, numProcs
+	
+	if not checkType or checkType == nil then return false end
+	if checkType == "int" then
+		if numProcs ~= nil then
+			if miLib.hasIntProcs >= numProcs then return true end
+			return false
+		elseif miLib.hasIntProcs > 0 then return true end
 		return false
 	end
-	return false
+	if checkType == "affliction" then
+		if numProcs ~= nil then
+			if miLib.affAuraProc >= numProcs then return true end
+			return false
+		elseif miLib.affAuraProc > 0 then return true end
+		return false
+	end
 end
 
-
+--[[
 function miLib.dots(spell, refreshTimer)
 	IterateObjects(function(object)
 		--if UnitCanAttack("player", object)
@@ -39,6 +74,6 @@ function miLib.dots(spell, refreshTimer)
 		return false
 	end, ObjectTypes.Unit)
 	return false
-end
+end]]
 
 ProbablyEngine.library.register("miLib", miLib)
