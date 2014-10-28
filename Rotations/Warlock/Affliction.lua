@@ -6,6 +6,11 @@
 	- More advanced encounter-specific coming with the release of WoD raids
 ]]
 
+-- Buttons
+local btn = function()
+	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Auto Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+end
+
 -- Combat Rotation
 local combatRotation = {
 	-- Buffs --
@@ -84,6 +89,18 @@ local combatRotation = {
 		"player.moving",
 		"player.spell(137587).cooldown = 0",
 	}},
+	
+	-- Command Demon
+	{{
+		{"119913", "player.pet(115770).spell", "target.ground"},
+		{"119909", "player.pet(6360).spell", "target.ground"},
+		{"119911", {"player.pet(115781).spell", "target.casting"}},
+		{"119910", {"player.pet(19467).spell", "target.casting"}},
+		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
+		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
+		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
+		{"119905", {"player.pet(89808).spell", "player.health < 80"}},
+	}, "toggle.autopet"},
 	
 	-- AoE Rotation --
 	{{	-- Firehack Support
@@ -293,4 +310,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(265, "[|cffa9013fMirakuru Rotations|r] Affliction", combatRotation, beforeCombat)
+ProbablyEngine.rotation.register_custom(265, "[|cffa9013fMirakuru Rotations|r] Affliction", combatRotation, beforeCombat, btn)

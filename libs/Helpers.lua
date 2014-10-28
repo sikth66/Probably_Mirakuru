@@ -5,14 +5,16 @@
 miLib = {}
 miLib.hasIntProcs = 0
 miLib.affAuraProc = 0
+miLib.commandDemon = nil
 
 ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	local event		= select(2, ...)
 	local source	= select(4, ...)
 	local spell		= select(12, ...)
 	local stacks	= select(16, ...)
-	local affAuras = {[113860] = true,[32182] = true,[80353] = true,[2825] = true,[90355] = true,[177051] = true,[177046] = true,[176875] = true,[176942] = true,[177594] = true,[126705] = true,[126683] = true,[146218] = true,[146046] = true,[146202] = true,[148906] = true,[137590] = true,[14889] = true}
+	local pet = {[112868] = true,[112869] = true,[112867] = true,[112866] = true,[712] = true,[691] = true,[697] = true,[688] = true}
 	local intProcs = {[146047] = true,[104993] = true,[148907] = true,[146184] = true,[177594] = true,[126683] = true,[126706] = true}
+	local affAuras = {[113860] = true,[32182] = true,[80353] = true,[2825] = true,[90355] = true,[177051] = true,[177046] = true,[176875] = true,[176942] = true,[177594] = true,[126705] = true,[126683] = true,[146218] = true,[146046] = true,[146202] = true,[148906] = true,[137590] = true,[14889] = true}
 	
 	if event == "SPELL_AURA_APPLIED" and source == UnitGUID("player") then
 		if affAuras[spell] ~= nil then
@@ -40,6 +42,11 @@ function miLib.intProcs()
 	if miLib.hasIntProcs >= 1 then return true end
 	return false
 end
+
+-- Register our own condition for Command Demon
+ProbablyEngine.condition.register("pet.spell", function(target, spell)
+	return IsSpellKnown(spell, true)
+end)
 
 --[[
 function miLib.dots(spell, refreshTimer)
