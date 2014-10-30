@@ -3,10 +3,14 @@
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 1.6
+## Version: 1.8.1
 
 -- Library References
-libs\Helpers.lua
+external\core.lua
+external\listener.lua
+external\conditions.lua
 
 -- Rotations
 Rotations\Warlock\Affliction.lua
+--Rotations\Warlock\Destruction.lua
+--Rotations\Warlock\Demonology.lua

@@ -6,6 +6,11 @@
 	- More advanced encounter-specific coming with the release of WoD raids
 ]]
 
+-- Buttons
+local btn = function()
+	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Auto Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+end
+
 -- Combat Rotation
 local combatRotation = {
 	-- Buffs --
@@ -85,19 +90,74 @@ local combatRotation = {
 		"player.spell(137587).cooldown = 0",
 	}},
 	
+	-- Command Demon
+	{{
+		{"119913", "player.pet(115770).spell", "target.ground"},
+		{"119909", "player.pet(6360).spell", "target.ground"},
+		{"119911", {"player.pet(115781).spell", "target.casting"}},
+		{"119910", {"player.pet(19467).spell", "target.casting"}},
+		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
+		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
+		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
+		{"119905", {"player.pet(89808).spell", "player.health < 80"}},
+	}, "toggle.autopet"},
+	
 	-- AoE Rotation --
 	{{	-- Firehack Support
-	}, {"player.firehack", "target.area(10).enemies >= 5", "modifier.multitarget"}},
+	}, {"player.firehack", "target.area(10).enemies >= 4", "modifier.multitarget"}},
+	
 	{{	-- Non-Firehack Support
 	}, {"!player.firehack", "modifier.control", "modifier.multitarget"}},
 	
 	-- Multi-dotting --
 	{{
-	}, "modifier.multitarget"},
+		{"348", "!mouseover.debuff(157736)", "mouseover"},
+		{"348", "mouseover.debuff(157736).duration <= 6", "mouseover"},
+	}, {"modifier.multitarget", "!player.moving"}},
 	
 	-- Regular Rotation --
 	{{	-- Firehack Support
-	}, {"player.firehack", "target.area(10).enemies < 5"}},
+		-- Rain of Fire while moving
+		{"!104232", {"player.moving","!player.buff(104232)"}, "target.ground"},
+		{"!104232", {"player.moving","player.buff(104232).duration < 5"}, "target.ground"},
+		
+		-- Shadowburn
+		{"!17877", {"talent(7, 1)", "player.embers >= 25"}},
+		{"!17877", "target.health <= 10"},
+		{"!17877", "player.int.procs > 0"},
+		{"!17877", {"player.buff(146202).duration < 10", "player.buff(146202).duration > 1.7"}},
+		
+		{{	-- Immolate
+			{"!348", {"target.debuff(157736).duration <= 1.5", "!modifier.last(348)"}},
+			{"348", {"!target.debuff(157736)", "!modifier.last(348)"}},
+			{"348", {"target.debuff(157736).duration <= 6", "!modifier.last(348)"}},
+		}, "!player.moving"},
+		
+		{{	-- Conflagrate
+			{"17962", "player.buff(117828).count < 3"},
+			{"17962", "!player.buff(117828)"},
+		}},
+		
+		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}},
+		{{	-- Chaos Bolt
+			{"116858", {"player.buff(170000)", "player.embers > 10"}},
+
+			{{	-- Chaos Bolt: T17 Logic
+				{"116858", "player.embers >= 26"},
+				{"116858", {"player.int.procs > 0", "player.embers >= 15"}},
+				{"116858", {"player.buff(113858)", "player.buff(113858).duration > 1.7"}},
+			}, {"player.buff(117828).count < 3", "player.embers >= 10"}},
+			
+(trinket.proc.intellect.react&trinket.proc.intellect.remains>cast_time)
+|buff.dark_soul.up)
+			{{	-- Chaos Bolt: Charred Remains
+				{"116858", "player.embers >= 25"},
+			}, {"talent(7,1)","player.buff(117828).count < 3"}},
+actions+=/chaos_bolt,if=buff.backdraft.stack<3&(burning_ember>=3.5|(trinket.proc.intellect.react&trinket.proc.intellect.remains>cast_time)|buff.dark_soul.up|(burning_ember>=3&buff.ember_master.react))
+		}},
+		
+		{"29722", "!player.moving"},
+	}, {"player.firehack", "target.area(10).enemies < 4"}},
 	
 	{{	-- Non-Firehack Support
 	}, {"!player.firehack", "!modifier.control"}}

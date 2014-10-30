@@ -8,7 +8,8 @@
 
 -- Buttons
 local btn = function()
-	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Auto Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+	ProbablyEngine.toggle.create('bossOnly', 'Interface\\Icons\\spell_holy_sealofvengeance.png', 'Cooldowns: Boss', "Toggle the exclusive usage of cooldowns on Boss units.")
 end
 
 -- Combat Rotation
@@ -20,38 +21,73 @@ local combatRotation = {
 	
 	-- Cooldown Management --
 	{{
-		-- Grimoire of Service
-		{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
-		
-		-- Trinkets
-		{"!#trinket1" },
-		{"!#trinket2" },
-		
-		-- Racials
-		{"!26297", "player.spell(26297).cooldown = 0" },
-		{"!33702", "player.spell(33702).cooldown = 0" },
-		{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-		
-		{"!18540", {	-- Doomguard
-			"!talent(7, 3)",
-			"player.spell(18540).cooldown = 0",
-		}},
-		{"!112927", {	-- Terrorguard
-			"!talent(7, 3)",
-			"talent(5, 1)",
-			"player.spell(112927).cooldown = 0",
-		}},
-		
-		-- Archimonde's Darkness
-		{{
-			{"!113860", "player.spell(113860).charges = 2"},
-			{"!113860", "@miLib.intProcs()"},
-			{"!113860", "target.health <= 10"},
-		}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
-		
-		-- Dark Soul
-		{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
-	}, {"modifier.cooldown", "target.boss"}},
+		{{	-- Boss Only
+			-- Grimoire of Service
+			{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
+			
+			-- Trinkets
+			{"!#trinket1" },
+			{"!#trinket2" },
+			
+			-- Racials
+			{"!26297", "player.spell(26297).cooldown = 0" },
+			{"!33702", "player.spell(33702).cooldown = 0" },
+			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+			
+			{"!18540", {	-- Doomguard
+				"!talent(7, 3)",
+				"player.spell(18540).cooldown = 0",
+			}},
+			{"!112927", {	-- Terrorguard
+				"!talent(7, 3)",
+				"talent(5, 1)",
+				"player.spell(112927).cooldown = 0",
+			}},
+			
+			-- Archimonde's Darkness
+			{{
+				{"!113860", "player.spell(113860).charges = 2"},
+				{"!113860", "player.int.procs > 0"},
+				{"!113860", "target.health <= 10"},
+			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
+			
+			-- Dark Soul
+			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
+		}, {"toggle.bossOnly", "target.boss"}},
+		{{	-- Any target
+			-- Grimoire of Service
+			{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
+			
+			-- Trinkets
+			{"!#trinket1" },
+			{"!#trinket2" },
+			
+			-- Racials
+			{"!26297", "player.spell(26297).cooldown = 0" },
+			{"!33702", "player.spell(33702).cooldown = 0" },
+			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+			
+			{"!18540", {	-- Doomguard
+				"!talent(7, 3)",
+				"player.spell(18540).cooldown = 0",
+			}},
+			{"!112927", {	-- Terrorguard
+				"!talent(7, 3)",
+				"talent(5, 1)",
+				"player.spell(112927).cooldown = 0",
+			}},
+			
+			-- Archimonde's Darkness
+			{{
+				{"!113860", "player.spell(113860).charges = 2"},
+				{"!113860", "player.int.procs > 0"},
+				{"!113860", "target.health <= 10"},
+			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
+			
+			-- Dark Soul
+			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
+		}, "!toggle.bossOnly"},
+	},"modifier.cooldowns"},
 	
 	-- Talents --
 	{"!108359", {	-- Dark Regeneration
@@ -94,8 +130,8 @@ local combatRotation = {
 	{{
 		{"119913", "player.pet(115770).spell", "target.ground"},
 		{"119909", "player.pet(6360).spell", "target.ground"},
-		{"119911", {"player.pet(115781).spell", "target.casting"}},
-		{"119910", {"player.pet(19467).spell", "target.casting"}},
+		{"119911", {"player.pet(115781).spell"}},
+		{"119910", {"player.pet(19467).spell"}},
 		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
 		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
 		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
@@ -124,7 +160,7 @@ local combatRotation = {
 		{"!27243", { "!target.debuff(27243)", "!target.debuff(114790)", "!modifier.last(114790)", "!player.moving"}},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"},
-	}, {"player.firehack", "target.area(10).enemies >= 5", "modifier.multitarget"}},
+	}, {"player.firehack", "target.area(10).enemies >= 4", "modifier.multitarget"}},
 	
 	{{	-- Non-Firehack Support
 		{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
@@ -176,13 +212,13 @@ local combatRotation = {
 	{{	-- Firehack Support
 		{{	-- Attempt proper Haunt usage and shard pooling
 			{{
-				{"!48181", "@miLib.affProcs()"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
 			}, "target.debuff(48181).duration < 4"},
 			{{
-				{"!48181", "@miLib.affProcs()"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
@@ -227,18 +263,18 @@ local combatRotation = {
 		{"1454", "player.mana < 40"},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"},
-	}, {"player.firehack", "target.area(10).enemies < 5"}},
+	}, {"player.firehack", "target.area(10).enemies < 4"}},
 	
 	{{	-- Non-Firehack Support
 		{{	-- Attempt proper Haunt usage and shard pooling
 			{{
-				{"!48181", "@miLib.affProcs()"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
 			}, "target.debuff(48181).duration < 4"},
 			{{
-				{"!48181", "@miLib.affProcs()"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"},
