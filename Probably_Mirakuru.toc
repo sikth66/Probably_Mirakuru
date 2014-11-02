@@ -3,7 +3,7 @@
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 1.8.1
+## Version: 1.9.0
 
 -- Library References
 external\core.lua
@@ -12,5 +12,5 @@ external\conditions.lua
 
 -- Rotations
 Rotations\Warlock\Affliction.lua
---Rotations\Warlock\Destruction.lua
+Rotations\Warlock\Destruction.lua
 --Rotations\Warlock\Demonology.lua

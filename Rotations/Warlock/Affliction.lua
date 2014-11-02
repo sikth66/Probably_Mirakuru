@@ -10,6 +10,7 @@
 local btn = function()
 	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
 	ProbablyEngine.toggle.create('bossOnly', 'Interface\\Icons\\spell_holy_sealofvengeance.png', 'Cooldowns: Boss', "Toggle the exclusive usage of cooldowns on Boss units.")
+	ProbablyEngine.toggle.create('stCataclysm', 'Interface\\Icons\\achievement_zone_cataclysm.png', 'Single-target Cataclysm', "Toggle the use of Cataclysm in single-target rotation.")
 end
 
 -- Combat Rotation
@@ -125,6 +126,11 @@ local combatRotation = {
 		"player.moving",
 		"player.spell(137587).cooldown = 0",
 	}},
+	{"!152108", {	-- Cataclysm
+		"talent(7, 2)",
+		"toggle.stCataclysm",
+		"player.spell(152108).cooldown = 0"
+	}, "target.ground"},
 	
 	-- Command Demon
 	{{
@@ -136,12 +142,12 @@ local combatRotation = {
 		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
 		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
 		{"119905", {"player.pet(89808).spell", "player.health < 80"}},
-	}, "toggle.autopet"},
+	}, {"toggle.autopet", "pet.exists", "pet.alive"}},
 	
 	-- AoE Rotation --
 	{{	-- Firehack Support
 		{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
-		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}},
+		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
 		{"!74434", {	-- Soulburn
 			"!talent(7, 1)",
 			"!player.buff(74434)",
@@ -164,7 +170,7 @@ local combatRotation = {
 	
 	{{	-- Non-Firehack Support
 		{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
-		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}},
+		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
 		{"!74434", {	-- Soulburn
 			"!talent(7, 1)",
 			"!player.buff(74434)",

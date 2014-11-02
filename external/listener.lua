@@ -8,6 +8,7 @@
 ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	local event		= select(2, ...)
 	local source	= select(4, ...)
+	local target	= select(8, ...)
 	local spell		= select(12, ...)
 	local stacks	= select(16, ...)
 	local intProcs = {[146047] = true,[104993] = true,[148907] = true,[146184] = true,[177594] = true,[126683] = true,[126706] = true,[146046] = true,[146202] = true}

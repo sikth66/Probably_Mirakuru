@@ -8,7 +8,9 @@
 
 -- Buttons
 local btn = function()
-	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Auto Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
+	ProbablyEngine.toggle.create('bossOnly', 'Interface\\Icons\\spell_holy_sealofvengeance.png', 'Cooldowns: Boss', "Toggle the exclusive usage of cooldowns on Boss units.")
+	ProbablyEngine.toggle.create('stCataclysm', 'Interface\\Icons\\achievement_zone_cataclysm.png', 'Single-target Cataclysm', "Toggle the use of Cataclysm in single-target rotation.")
 end
 
 -- Combat Rotation
@@ -20,38 +22,73 @@ local combatRotation = {
 	
 	-- Cooldown Management --
 	{{
-		-- Grimoire of Service
-		{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
-		
-		-- Trinkets
-		{"!#trinket1" },
-		{"!#trinket2" },
-		
-		-- Racials
-		{"!26297", "player.spell(26297).cooldown = 0" },
-		{"!33702", "player.spell(33702).cooldown = 0" },
-		{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-		
-		{"!18540", {	-- Doomguard
-			"!talent(7, 3)",
-			"player.spell(18540).cooldown = 0",
-		}},
-		{"!112927", {	-- Terrorguard
-			"!talent(7, 3)",
-			"talent(5, 1)",
-			"player.spell(112927).cooldown = 0",
-		}},
-		
-		-- Archimonde's Darkness
-		{{
-			{"!113860", "player.spell(113860).charges = 2"},
-			{"!113860", "@miLib.intProcs()"},
-			{"!113860", "target.health <= 10"},
-		}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
-		
-		-- Dark Soul
-		{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
-	}, {"modifier.cooldown", "target.boss"}},
+		{{	-- Boss Only
+			-- Grimoire of Service
+			{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
+			
+			-- Trinkets
+			{"!#trinket1" },
+			{"!#trinket2" },
+			
+			-- Racials
+			{"!26297", "player.spell(26297).cooldown = 0" },
+			{"!33702", "player.spell(33702).cooldown = 0" },
+			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+			
+			{"!18540", {	-- Doomguard
+				"!talent(7, 3)",
+				"player.spell(18540).cooldown = 0",
+			}},
+			{"!112927", {	-- Terrorguard
+				"!talent(7, 3)",
+				"talent(5, 1)",
+				"player.spell(112927).cooldown = 0",
+			}},
+			
+			-- Archimonde's Darkness
+			{{
+				{"!113860", "player.spell(113860).charges = 2"},
+				{"!113860", "player.int.procs > 0"},
+				{"!113860", "target.health <= 10"},
+			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
+			
+			-- Dark Soul
+			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
+		}, {"toggle.bossOnly", "target.boss"}},
+		{{	-- Any target
+			-- Grimoire of Service
+			{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
+			
+			-- Trinkets
+			{"!#trinket1" },
+			{"!#trinket2" },
+			
+			-- Racials
+			{"!26297", "player.spell(26297).cooldown = 0" },
+			{"!33702", "player.spell(33702).cooldown = 0" },
+			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+			
+			{"!18540", {	-- Doomguard
+				"!talent(7, 3)",
+				"player.spell(18540).cooldown = 0",
+			}},
+			{"!112927", {	-- Terrorguard
+				"!talent(7, 3)",
+				"talent(5, 1)",
+				"player.spell(112927).cooldown = 0",
+			}},
+			
+			-- Archimonde's Darkness
+			{{
+				{"!113858", "player.spell(113858).charges = 2"},
+				{"!113858", "player.int.procs > 0"},
+				{"!113858", "target.health <= 10"},
+			}, {"talent(6, 1)", "player.spell(113858).charges > 0"}},
+			
+			-- Dark Soul
+			{"!113858", "!talent(6, 1)", "player.spell(113858).cooldown = 0"},
+		}, "!toggle.bossOnly"},
+	},"modifier.cooldowns"},
 	
 	-- Talents --
 	{"!108359", {	-- Dark Regeneration
@@ -89,78 +126,143 @@ local combatRotation = {
 		"player.moving",
 		"player.spell(137587).cooldown = 0",
 	}},
+	{"!152108", {	-- Cataclysm
+		"talent(7, 2)",
+		"toggle.stCataclysm",
+		"player.spell(152108).cooldown = 0"
+	}, "target.ground"},
 	
 	-- Command Demon
 	{{
 		{"119913", "player.pet(115770).spell", "target.ground"},
 		{"119909", "player.pet(6360).spell", "target.ground"},
-		{"119911", {"player.pet(115781).spell", "target.casting"}},
-		{"119910", {"player.pet(19467).spell", "target.casting"}},
+		{"119911", {"player.pet(115781).spell"}},
+		{"119910", {"player.pet(19467).spell"}},
 		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
 		{"119907", {"player.pet(17735).spell", "target.threat < 100"}},
 		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
 		{"119905", {"player.pet(89808).spell", "player.health < 80"}},
-	}, "toggle.autopet"},
+	}, {"toggle.autopet", "pet.exists", "pet.alive"}},
 	
 	-- AoE Rotation --
-	{{	-- Firehack Support
+	{{	-- Firehack support
+		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
+		{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
+		{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
+		{"108685", "player.spell(108685).charges = 2"},
+		
+		{{
+			{{
+				{"157701", "player.embers >= 25"},
+				{"157701", "player.int.procs > 0"},
+				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+			}, {"talent(7, 1)","player.buff(117828).count < 3"}},
+
+			{"157701", "player.embers >= 32"},
+			{"157701", "player.int.procs > 0"},
+			{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+			{"157701", {"player.buff(145164)", "player.embers > 27"}},
+		}, "player.buff(117828).count < 3"},
+		
+		{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+		
+		{{
+			{"104232", "player.buff(117828)"},
+			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+		}, "!player.buff(104232)", "target.ground"},
+		{{
+			{"104232", "player.buff(117828)"},
+			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+		}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
+		
+		{"108686", {"!target.debuff(157736)", "!player.moving"}},
+		{"108685", "player.spell(108685).charges > 0"},
+		{"114654", "!player.moving"},
 	}, {"player.firehack", "target.area(10).enemies >= 4", "modifier.multitarget"}},
 	
 	{{	-- Non-Firehack Support
+		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
+		{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
+		{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
+		{"108685", "player.spell(108685).charges = 2"},
+		
+		{{
+			{{
+				{"157701", "player.embers >= 25"},
+				{"157701", "player.int.procs > 0"},
+				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+			}, {"talent(7, 1)","player.buff(117828).count < 3"}},
+
+			{"157701", "player.embers >= 32"},
+			{"157701", "player.int.procs > 0"},
+			{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+			{"157701", {"player.buff(145164)", "player.embers > 27"}},
+		},"player.buff(117828).count < 3"},
+		
+		{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+		
+		{{
+			{"104232", "player.buff(117828)"},
+			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+		}, "!player.buff(104232)", "target.ground"},
+		{{
+			{"104232", "player.buff(117828)"},
+			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+		}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
+		
+		{"108686", {"!target.debuff(157736)", "!player.moving"}},
+		{"108685", "player.spell(108685).charges > 0"},
+		{"114654", "!player.moving"},
 	}, {"!player.firehack", "modifier.control", "modifier.multitarget"}},
 	
-	-- Multi-dotting --
+	-- Single-target
+	{{	-- Shadowburn
+		{"17877", "player.embers >= 25"},
+		{"17877", "target.ttd < 25"},
+		{"17877", "player.int.procs > 0"},
+	}, {"talent(7, 1)", "player.embers > 10"}},
+	
+	{"348", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
+	{"17962", "player.spell(17962).charges = 2"},
+	
 	{{
-		{"348", "!mouseover.debuff(157736)", "mouseover"},
-		{"348", "mouseover.debuff(157736).duration <= 6", "mouseover"},
-	}, {"modifier.multitarget", "!player.moving"}},
-	
-	-- Regular Rotation --
-	{{	-- Firehack Support
-		-- Rain of Fire while moving
-		{"!104232", {"player.moving","!player.buff(104232)"}, "target.ground"},
-		{"!104232", {"player.moving","player.buff(104232).duration < 5"}, "target.ground"},
-		
-		-- Shadowburn
-		{"!17877", {"talent(7, 1)", "player.embers >= 25"}},
-		{"!17877", "target.health <= 10"},
-		{"!17877", "player.int.procs > 0"},
-		{"!17877", {"player.buff(146202).duration < 10", "player.buff(146202).duration > 1.7"}},
-		
-		{{	-- Immolate
-			{"!348", {"target.debuff(157736).duration <= 1.5", "!modifier.last(348)"}},
-			{"348", {"!target.debuff(157736)", "!modifier.last(348)"}},
-			{"348", {"target.debuff(157736).duration <= 6", "!modifier.last(348)"}},
-		}, "!player.moving"},
-		
-		{{	-- Conflagrate
-			{"17962", "player.buff(117828).count < 3"},
-			{"17962", "!player.buff(117828)"},
-		}},
-		
-		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}},
-		{{	-- Chaos Bolt
-			{"116858", {"player.buff(170000)", "player.embers > 10"}},
+		{"116858", "player,.buff(170000)"},
+		{{
+			{"116858", "player.embers >= 25"},
+			{"116858", "player.int.procs > 0"},
+			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+		}, "player.buff(165455)"},
+		{{
+			{"116858", "player.embers >= 25"},
+			{"116858", "player.int.procs > 0"},
+			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+		}, "talent(7, 1)"},
+		{{
+			{"116858", "player.embers >= 25"},
+			{"116858", "player.int.procs > 0"},
+			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+		}, "talent(7, 1)"},
 
-			{{	-- Chaos Bolt: T17 Logic
-				{"116858", "player.embers >= 26"},
-				{"116858", {"player.int.procs > 0", "player.embers >= 15"}},
-				{"116858", {"player.buff(113858)", "player.buff(113858).duration > 1.7"}},
-			}, {"player.buff(117828).count < 3", "player.embers >= 10"}},
-			
-(trinket.proc.intellect.react&trinket.proc.intellect.remains>cast_time)
-|buff.dark_soul.up)
-			{{	-- Chaos Bolt: Charred Remains
-				{"116858", "player.embers >= 25"},
-			}, {"talent(7,1)","player.buff(117828).count < 3"}},
-actions+=/chaos_bolt,if=buff.backdraft.stack<3&(burning_ember>=3.5|(trinket.proc.intellect.react&trinket.proc.intellect.remains>cast_time)|buff.dark_soul.up|(burning_ember>=3&buff.ember_master.react))
-		}},
-		
-		{"29722", "!player.moving"},
-	}, {"player.firehack", "target.area(10).enemies < 4"}},
+		{"116858", "player.embers >= 32"},
+		{"116858", "player.int.procs > 0"},
+		{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+		{"116858", {"player.buff(145164)", "player.embers > 27"}},
+	}, {"player.buff(117828).count < 3", "!player.moving"}},
 	
-	{{	-- Non-Firehack Support
-	}, {"!player.firehack", "!modifier.control"}}
+	{"348", {"target.debuff(157736).duration < 6", "!player.moving"}},
+
+	{{
+		{"104232", "player.buff(117828)"},
+		{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+	}, "!player.buff(104232)", "target.ground"},
+	{{
+		{"104232", "player.buff(117828)"},
+		{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+	}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
+
+	{"348", {"!target.debuff(157736)", "!player.moving"}},
+	{"17962", "player.spell(17962).charges > 0"},
+	{"29722", "!player.moving"},
 }
 
 -- Out of combat
@@ -187,4 +289,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(267, "[|cffa9013fMirakuru Rotations|r] Destruction", combatRotation, beforeCombat)
+ProbablyEngine.rotation.register_custom(267, "[|cffa9013fMirakuru Rotations|r] Destruction", combatRotation, beforeCombat, btn)
