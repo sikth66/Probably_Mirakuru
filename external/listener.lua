@@ -22,4 +22,4 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
 		if intProcs[spell] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs - 1 end
 	end
-end)
+return end)

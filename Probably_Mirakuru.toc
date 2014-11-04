@@ -9,6 +9,7 @@
 external\core.lua
 external\listener.lua
 external\conditions.lua
+external\interface.lua
 
 -- Rotations
 Rotations\Warlock\Affliction.lua
