@@ -5,26 +5,101 @@
 	Fully updated for Warlords of Draenor!
 	- More advanced encounter-specific coming with the release of WoD raids
 ]]
-
 -- Buttons
 local btn = function()
 	ProbablyEngine.toggle.create('autopet', 'Interface\\Icons\\ability_warlock_demonicempowerment.png', 'Command Demon', "Enable automatic usage of summoned pet's Special Ability.")
 	ProbablyEngine.toggle.create('bossOnly', 'Interface\\Icons\\spell_holy_sealofvengeance.png', 'Cooldowns: Boss', "Toggle the exclusive usage of cooldowns on Boss units.")
 	ProbablyEngine.toggle.create('stCataclysm', 'Interface\\Icons\\achievement_zone_cataclysm.png', 'Single-target Cataclysm', "Toggle the use of Cataclysm in single-target rotation.")
+	
+	-- GUI
+	local test = ProbablyEngine.interface.fetchKey('miraDestruConfig', 'aoe_units_check')
+	if test ~= nil then return else
+		miLib.displayFrame(mirakuru_destru_config)
+	end
+end
+
+-- Dynamically evaluate settings
+local fetch = ProbablyEngine.interface.fetchKey
+
+local function dynamicEval(condition, spell)
+	if not condition then return false end
+	return ProbablyEngine.dsl.parse(condition, spell or '')
+end
+
+-- Pet Selections
+function setPet()
+	local pet = fetch('miraAffConfig', 'summon_pet')
+	if pet ~= nil then return pet end
+end
+
+function servicePet()
+	local pet = fetch('miraAffConfig', 'service_pet')
+	if pet ~= nil then return pet end
 end
 
 -- Combat Rotation
 local combatRotation = {
+	-- Auto target enemy when Enabled
+	{{
+		{"/targetenemy [noexists]", "!target.exists"},
+		{"/targetenemy [dead]", {"target.exists", "target.dead"}},
+	}, (function() return fetch('miraDestruConfig', 'auto_target') end)},
+	
+	
 	-- Buffs --
-	{"!109773", "!player.buffs.mastery"},
+	{"!109773", "!player.buffs.multistrike"},
 	{"!109773", "!player.buffs.spellpower"},
+	{{
+		{"/cancelaura "..GetSpellInfo(111400), {
+			"player.buff(111400)",
+			(function() return dynamicEval("player.health <= " .. fetch('miraDestruConfig', 'burning_rush_spin')) end),
+		}},
+	}, (function() return fetch('miraDestruConfig', 'burning_rush_check') end)},
 	{"/cancelaura "..GetSpellInfo(111400), {"!player.moving", "player.buff(111400)"}},
+	
+	
+	-- Summon Pet
+	{{
+		{{	-- Summon pet using instant abilities
+			{"!74434", {
+				"!pet.alive",
+				"!pet.exists",
+				"!player.buff(74434)",
+				"player.soulshards > 0",
+				(function() return fetch('miraDestruConfig', 'auto_summon_pet_instant') end),
+				(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
+			}},
+			
+			{"/run CastSpellByID(setPet())", {
+				"!pet.alive",
+				"!pet.exists",
+				"player.buff(74434)",
+				"timeout(petCombat, 3)",
+				(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
+				(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
+			}},
+		}, {(function() return fetch('miraDestruConfig', 'auto_summon_pet_instant') end), "!talent(5, 3)"}},
+		
+		-- Summon pet without instant abilities
+		{"/run CastSpellByID(setPet())", {
+			"!pet.alive",
+			"!pet.exists",
+			"!player.buff(108503)",
+			"timeout(petCombat, 3)",
+			(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
+			(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
+		}},
+	}},
+	
 	
 	-- Cooldown Management --
 	{{
 		{{	-- Boss Only
 			-- Grimoire of Service
-			{"!111897", {"talent(5, 2)", "player.spell(111897).cooldown = 0"}},
+			{"!/run CastSpellByID(servicePet())", {
+				"talent(5, 2)",
+				(function() return dynamicEval("player.spell("..servicePet()..").cooldown = 0") end),
+			}},
 			
 			-- Trinkets
 			{"!#trinket1" },
@@ -47,13 +122,13 @@ local combatRotation = {
 			
 			-- Archimonde's Darkness
 			{{
-				{"!113860", "player.spell(113860).charges = 2"},
-				{"!113860", "player.int.procs > 0"},
-				{"!113860", "target.health <= 10"},
-			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
+				{"!113858", "player.spell(113858).charges = 2"},
+				{"!113858", "player.int.procs > 0"},
+				{"!113858", "target.health <= 10"},
+			}, {"talent(6, 1)", "player.spell(113858).charges > 0"}},
 			
 			-- Dark Soul
-			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
+			{"!113858", "!talent(6, 1)", "player.spell(113858).cooldown = 0"},
 		}, {"toggle.bossOnly", "target.boss"}},
 		{{	-- Any target
 			-- Grimoire of Service
@@ -90,18 +165,23 @@ local combatRotation = {
 		}, "!toggle.bossOnly"},
 	},"modifier.cooldowns"},
 	
+	
 	-- Talents --
-	{"!108359", {	-- Dark Regeneration
-		"talent(1, 1)",
-		"player.health < 40",
-		"player.spell(108359).cooldown = 0",
-		(function() return (UnitGetIncomingHeals("player") < 8000 and false or true) end),
-	}},
-	{"6789", {		-- Mortal Coil
-		"talent(2, 2)",
-		"player.health < 85",
-		"player.spell(6789).cooldown = 0",
-	}},
+	{{
+		{"!108359", {	-- Dark Regeneration
+			"talent(1, 1)",
+			(function() return dynamicEval("player.health <= " .. fetch('miraDestruConfig', 'darkregen_hp_spin')) end),
+			"player.spell(108359).cooldown = 0",
+			(function() return (UnitGetIncomingHeals("player") < fetch('miraDestruConfig', 'darkregen_healing') and false or true) end),
+		}},
+	}, (function() return fetch('miraDestruConfig', 'darkregen_hp_check') end)},
+	{{
+		{"6789", {		-- Mortal Coil
+			"talent(2, 2)",
+			(function() return dynamicEval("player.health <= " .. fetch('miraDestruConfig', 'mortal_coil_spin')) end),
+			"player.spell(6789).cooldown = 0",
+		}},
+	}, (function() return fetch('miraDestruConfig', 'mortal_coil_check') end)},
 	{"!30283", {	-- Shadowfury
 		"talent(2, 3)",
 		"modifier.ralt",
@@ -132,7 +212,9 @@ local combatRotation = {
 		"player.spell(152108).cooldown = 0"
 	}, "target.ground"},
 	
+	
 	-- Command Demon
+	{"/petattack", {"timeout(petAttack, 1)", "pet.exists", "pet.alive"}},
 	{{
 		{"119913", "player.pet(115770).spell", "target.ground"},
 		{"119909", "player.pet(6360).spell", "target.ground"},
@@ -144,83 +226,97 @@ local combatRotation = {
 		{"119905", {"player.pet(89808).spell", "player.health < 80"}},
 	}, {"toggle.autopet", "pet.exists", "pet.alive"}},
 	
-	-- AoE Rotation --
-	{{	-- Firehack support
-		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-		{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
-		{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
-		{"108685", "player.spell(108685).charges = 2"},
-		
-		{{
-			{{
-				{"157701", "player.embers >= 25"},
-				{"157701", "player.int.procs > 0"},
-				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-			}, {"talent(7, 1)","player.buff(117828).count < 3"}},
-
-			{"157701", "player.embers >= 32"},
-			{"157701", "player.int.procs > 0"},
-			{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-			{"157701", {"player.buff(145164)", "player.embers > 27"}},
-		}, "player.buff(117828).count < 3"},
-		
-		{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
-		
-		{{
-			{"104232", "player.buff(117828)"},
-			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-		}, "!player.buff(104232)", "target.ground"},
-		{{
-			{"104232", "player.buff(117828)"},
-			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-		}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
-		
-		{"108686", {"!target.debuff(157736)", "!player.moving"}},
-		{"108685", "player.spell(108685).charges > 0"},
-		{"114654", "!player.moving"},
-	}, {"player.firehack", "target.area(10).enemies >= 4", "modifier.multitarget"}},
 	
-	{{	-- Non-Firehack Support
-		{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-		{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
-		{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
-		{"108685", "player.spell(108685).charges = 2"},
-		
-		{{
+	-- AoE Rotation --
+	{{
+		{{	-- Firehack support
+			{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
+			{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
+			{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
+			{"108685", "player.spell(108685).charges = 2"},
+			
 			{{
-				{"157701", "player.embers >= 25"},
+				{{
+					{"157701", "player.embers >= 25"},
+					{"157701", "player.int.procs > 0"},
+					{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+				}, {"talent(7, 1)","player.buff(117828).count < 3"}},
+				
+				{"157701", "player.embers >= 32"},
 				{"157701", "player.int.procs > 0"},
 				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-			}, {"talent(7, 1)","player.buff(117828).count < 3"}},
-
-			{"157701", "player.embers >= 32"},
-			{"157701", "player.int.procs > 0"},
-			{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-			{"157701", {"player.buff(145164)", "player.embers > 27"}},
-		},"player.buff(117828).count < 3"},
+				{"157701", {"player.buff(145164)", "player.embers > 27"}},
+			}, "player.buff(117828).count < 3"},
+			
+			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+			
+			{{
+				{"104232", "player.buff(117828)"},
+				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+			}, "!player.buff(104232)", "target.ground"},
+			{{
+				{"104232", "player.buff(117828)"},
+				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+			}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
+			
+			{"108686", {"!target.debuff(157736)", "!player.moving"}},
+			{"108685", "player.spell(108685).charges > 0"},
+			{"114654", "!player.moving"},
+		}, {
+			"player.firehack",
+			(function() return fetch('miraDestruConfig', 'aoe_units_check') end),
+			(function() return dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units_spin')) end),
+		}},
 		
-		{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
-		
-		{{
-			{"104232", "player.buff(117828)"},
-			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-		}, "!player.buff(104232)", "target.ground"},
-		{{
-			{"104232", "player.buff(117828)"},
-			{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-		}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
-		
-		{"108686", {"!target.debuff(157736)", "!player.moving"}},
-		{"108685", "player.spell(108685).charges > 0"},
-		{"114654", "!player.moving"},
-	}, {"!player.firehack", "modifier.control", "modifier.multitarget"}},
+		{{	-- Non-Firehack Support
+			{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
+			{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
+			{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
+			{"108685", "player.spell(108685).charges = 2"},
+			
+			{{
+				{{
+					{"157701", "player.embers >= 25"},
+					{"157701", "player.int.procs > 0"},
+					{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+				}, {"talent(7, 1)","player.buff(117828).count < 3"}},
+				
+				{"157701", "player.embers >= 32"},
+				{"157701", "player.int.procs > 0"},
+				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
+				{"157701", {"player.buff(145164)", "player.embers > 27"}},
+			},"player.buff(117828).count < 3"},
+			
+			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+			
+			{{
+				{"104232", "player.buff(117828)"},
+				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+			}, "!player.buff(104232)", "target.ground"},
+			{{
+				{"104232", "player.buff(117828)"},
+				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
+			}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
+			
+			{"108686", {"!target.debuff(157736)", "!player.moving"}},
+			{"108685", "player.spell(108685).charges > 0"},
+			{"114654", "!player.moving"},
+		}, {"!player.firehack", "modifier.control"}}
+	}, "modifier.multitarget"},
+	
 	
 	-- Single-target
+	{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
 	{{	-- Shadowburn
-		{"17877", "player.embers >= 25"},
-		{"17877", "target.ttd < 25"},
-		{"17877", "player.int.procs > 0"},
-	}, {"talent(7, 1)", "player.embers > 10"}},
+		{{
+			{"!17877", "player.embers >= 25"},
+			{"!17877", "target.ttd < 25"},
+			{"!17877", "player.int.procs > 0"},
+		}, "talent(7, 1)"},
+		{"!17877", "player.embers >= 30"},
+		{"!17877", "target.ttd < 15"},
+		{"!17877", "player.int.procs > 0"},
+	}, {"player.embers > 10", "target.health < 20"}},
 	
 	{"348", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
 	{"17962", "player.spell(17962).charges = 2"},
@@ -242,24 +338,20 @@ local combatRotation = {
 			{"116858", "player.int.procs > 0"},
 			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
 		}, "talent(7, 1)"},
-
+		
 		{"116858", "player.embers >= 32"},
 		{"116858", "player.int.procs > 0"},
 		{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
 		{"116858", {"player.buff(145164)", "player.embers > 27"}},
-	}, {"player.buff(117828).count < 3", "!player.moving"}},
+	}, {"player.buff(117828).count < 3", "!player.moving", "target.health > 20"}},
 	
 	{"348", {"target.debuff(157736).duration < 6", "!player.moving"}},
-
-	{{
+	
+	--[[{{
 		{"104232", "player.buff(117828)"},
 		{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-	}, "!player.buff(104232)", "target.ground"},
-	{{
-		{"104232", "player.buff(117828)"},
-		{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-	}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
-
+	}, "!player.buff(104232)", "target.ground"},]]
+	
 	{"348", {"!target.debuff(157736)", "!player.moving"}},
 	{"17962", "player.spell(17962).charges > 0"},
 	{"29722", "!player.moving"},
@@ -268,8 +360,14 @@ local combatRotation = {
 -- Out of combat
 local beforeCombat = {
 	-- Buffs
-	{"109773", "!player.buffs.mastery"},
+	{"109773", "!player.buffs.multistrike"},
 	{"109773", "!player.buffs.spellpower"},
+	{{
+		{"/cancelaura "..GetSpellInfo(111400), {
+			"player.buff(111400)",
+			(function() return dynamicEval("player.health <= " .. fetch('miraDestruConfig', 'burning_rush_spin')) end),
+		}},
+	}, (function() return fetch('miraDestruConfig', 'burning_rush_check') end)},
 	{"/cancelaura "..GetSpellInfo(111400), {"!player.moving", "player.buff(111400)"}},
 	
 	-- Talent: Grimoire of Sacrifice
@@ -286,7 +384,18 @@ local beforeCombat = {
 		"modifier.ralt",
 		"player.spell(30283).cooldown = 0",
 	}, "mouseover.ground"},
+	
+	-- Summon Pet
+	{"/run CastSpellByID(setPet())", {
+		"!pet.exists", "!pet.alive", "!player.buff(108503)", "timeout(petOOC, 3)",
+		(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
+	}},
+	
+	-- Attack anything when Enabled
+	{{
+		{"/cast "..GetSpellInfo(29722), "target.alive"}
+	}, (function() return fetch('miraDestruConfig', 'force_attack') end)}
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(267, "[|cffa9013fMirakuru Rotations|r] Destruction", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction", combatRotation, beforeCombat, btn)

@@ -1,9 +1,9 @@
 ## Interface: 60000
-## Title: Probably [|cffa9013fMirakuru Rotations|r]
+## Title: Probably [|cff005522Mirakuru Rotations|r]
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 1.9.0
+## Version: 2.0
 
 -- Library References
 external\core.lua
