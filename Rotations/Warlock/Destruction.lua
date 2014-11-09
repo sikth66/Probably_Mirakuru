@@ -60,25 +60,15 @@ local combatRotation = {
 	
 	-- Summon Pet
 	{{
-		{{	-- Summon pet using instant abilities
-			{"!74434", {
-				"!pet.alive",
-				"!pet.exists",
-				"!player.buff(74434)",
-				"player.soulshards > 0",
-				(function() return fetch('miraDestruConfig', 'auto_summon_pet_instant') end),
-				(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
-			}},
-			
-			{"/run CastSpellByID(setPet())", {
-				"!pet.alive",
-				"!pet.exists",
-				"player.buff(74434)",
-				"timeout(petCombat, 3)",
-				(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
-				(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
-			}},
-		}, {(function() return fetch('miraDestruConfig', 'auto_summon_pet_instant') end), "!talent(5, 3)"}},
+		-- Summon pet using instant abilities
+		{"120451", {
+			"!pet.alive",
+			"!pet.exists",
+			"player.embers > 10",
+			"!player.buff(108503)",
+			"player.spell(120451).cooldown = 0",
+			(function() return fetch('miraDestruConfig', 'auto_summon_pet_instant') end),
+		}},
 		
 		-- Summon pet without instant abilities
 		{"/run CastSpellByID(setPet())", {
@@ -86,6 +76,8 @@ local combatRotation = {
 			"!pet.exists",
 			"!player.buff(108503)",
 			"timeout(petCombat, 3)",
+			"!modifier.last(120451)",
+			"player.spell(120451).cooldown > 0",
 			(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
 			(function() return dynamicEval("player.spell("..setPet()..").cooldown = 0") end),
 		}},
@@ -158,10 +150,18 @@ local combatRotation = {
 				{"!113858", "player.spell(113858).charges = 2"},
 				{"!113858", "player.int.procs > 0"},
 				{"!113858", "target.health <= 10"},
-			}, {"talent(6, 1)", "player.spell(113858).charges > 0"}},
+			}, {
+				"talent(6, 1)",
+				"player.spell(113858).charges > 0",
+				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
+			}},
 			
 			-- Dark Soul
-			{"!113858", "!talent(6, 1)", "player.spell(113858).cooldown = 0"},
+			{"!113858", {
+				"!talent(6, 1)",
+				"player.spell(113858).cooldown = 0",
+				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
+			}},
 		}, "!toggle.bossOnly"},
 	},"modifier.cooldowns"},
 	
@@ -206,11 +206,6 @@ local combatRotation = {
 		"player.moving",
 		"player.spell(137587).cooldown = 0",
 	}},
-	{"!152108", {	-- Cataclysm
-		"talent(7, 2)",
-		"toggle.stCataclysm",
-		"player.spell(152108).cooldown = 0"
-	}, "target.ground"},
 	
 	
 	-- Command Demon
@@ -230,76 +225,37 @@ local combatRotation = {
 	-- AoE Rotation --
 	{{
 		{{	-- Firehack support
+			{"104232", "!player.buff(104232)", "target.ground"},
+			{"104232", "player.buff(104232).duration <= 2", "target.ground"},
 			{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
-			{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
-			{"108685", "player.spell(108685).charges = 2"},
-			
-			{{
-				{{
-					{"157701", "player.embers >= 25"},
-					{"157701", "player.int.procs > 0"},
-					{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-				}, {"talent(7, 1)","player.buff(117828).count < 3"}},
-				
-				{"157701", "player.embers >= 32"},
-				{"157701", "player.int.procs > 0"},
-				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-				{"157701", {"player.buff(145164)", "player.embers > 27"}},
-			}, "player.buff(117828).count < 3"},
-			
-			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
-			
-			{{
-				{"104232", "player.buff(117828)"},
-				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-			}, "!player.buff(104232)", "target.ground"},
-			{{
-				{"104232", "player.buff(117828)"},
-				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-			}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
-			
+			{"108683", "!player.buff(108683)"},
 			{"108686", {"!target.debuff(157736)", "!player.moving"}},
-			{"108685", "player.spell(108685).charges > 0"},
+			{"108685", "player.spell(108685).charges = 2"},
+			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+			{"157701", {
+				"talent(7, 1)",
+				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
+			}},
 			{"114654", "!player.moving"},
 		}, {
 			"player.firehack",
 			(function() return fetch('miraDestruConfig', 'aoe_units_check') end),
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) end),
 			(function() return dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units_spin')) end),
 		}},
 		
 		{{	-- Non-Firehack Support
+			{"104232", "!player.buff(104232)", "target.ground"},
+			{"104232", "player.buff(104232).duration <= 2", "target.ground"},
 			{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"108683", {"!player.buff(108683)", "player.embers >= 20"}},
-			{"108686", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
-			{"108685", "player.spell(108685).charges = 2"},
-			
-			{{
-				{{
-					{"157701", "player.embers >= 25"},
-					{"157701", "player.int.procs > 0"},
-					{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-				}, {"talent(7, 1)","player.buff(117828).count < 3"}},
-				
-				{"157701", "player.embers >= 32"},
-				{"157701", "player.int.procs > 0"},
-				{"157701", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-				{"157701", {"player.buff(145164)", "player.embers > 27"}},
-			},"player.buff(117828).count < 3"},
-			
-			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
-			
-			{{
-				{"104232", "player.buff(117828)"},
-				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-			}, "!player.buff(104232)", "target.ground"},
-			{{
-				{"104232", "player.buff(117828)"},
-				{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-			}, {"talent(6, 3)", "player.buff(108508).duration < 1"}, "target.ground"},
-			
+			{"108683", "!player.buff(108683)"},
 			{"108686", {"!target.debuff(157736)", "!player.moving"}},
-			{"108685", "player.spell(108685).charges > 0"},
+			{"108685", "player.spell(108685).charges = 2"},
+			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
+			{"157701", {
+				"talent(7, 1)",
+				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
+			}},
 			{"114654", "!player.moving"},
 		}, {"!player.firehack", "modifier.control"}}
 	}, "modifier.multitarget"},
@@ -307,54 +263,152 @@ local combatRotation = {
 	
 	-- Single-target
 	{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
-	{{	-- Shadowburn
-		{{
-			{"!17877", "player.embers >= 25"},
-			{"!17877", "target.ttd < 25"},
-			{"!17877", "player.int.procs > 0"},
-		}, "talent(7, 1)"},
-		{"!17877", "player.embers >= 30"},
-		{"!17877", "target.ttd < 15"},
-		{"!17877", "player.int.procs > 0"},
-	}, {"player.embers > 10", "target.health < 20"}},
-	
-	{"348", {"target.debuff(157736).duration < 1.5", "!player.moving"}},
-	{"17962", "player.spell(17962).charges = 2"},
 	
 	{{
-		{"116858", "player,.buff(170000)"},
-		{{
-			{"116858", "player.embers >= 25"},
-			{"116858", "player.int.procs > 0"},
-			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-		}, "player.buff(165455)"},
-		{{
-			{"116858", "player.embers >= 25"},
-			{"116858", "player.int.procs > 0"},
-			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-		}, "talent(7, 1)"},
-		{{
-			{"116858", "player.embers >= 25"},
-			{"116858", "player.int.procs > 0"},
-			{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-		}, "talent(7, 1)"},
+		{{	-- Shadowburn
+			{"!17877", "player.buff(80240)"},
+			{"!17877", "player.embers >= 25"},
+			{"!17877", "player.buff(113858)"},
+			{"!17877", "target.ttd < 15"},
+		}, {"talent(7, 1)", "target.health <= 20", "player.embers >= 10"}},
 		
-		{"116858", "player.embers >= 32"},
-		{"116858", "player.int.procs > 0"},
-		{"116858", {"player.buff(113858)", "player.buff(113858).duration > 2.8"}},
-		{"116858", {"player.buff(145164)", "player.embers > 27"}},
-	}, {"player.buff(117828).count < 3", "!player.moving", "target.health > 20"}},
+		{{
+			{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 2"}},
+			{"348", "!talent(7, 2)"},
+		}, {"target.debuff(157736).duration < 1.5", "!player.moving", "!modifier.last(384)"}},
+		
+		{"104232", "!player.buff(104232)", "target.ground"},
+		{"116858", {"player.buff(80240).duration > 2.5", "player.buff(80240).count >= 3"}},
+		{"17962", "player.spell(17962).charges = 2"},
+		{"!152108", {"talent(7, 2)", "toggle.stCataclysm", "player.spell(152108).cooldown = 0"}, "target.ground"},
+		
+		{{	-- Chaos Bolt (Charred Remains)
+			{"116858"},
+			{"116858", "player.buff(117828).count < 3"},
+		}, {
+			"talent(7, 1)",
+			"target.health > 20",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"116858", {"player.int.procs > 0", "player.embers >= 10"}},
+		
+		{{	-- Chaos Bolt (Non-Charred Remains)
+			{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
+			{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..(3 / ((GetHaste("player") / 100)  + 1))) end)},
+			{"116858", "target.ttd < 20"},
+			{"116858", {"player.buff(165455)", "player.embers >= 25"}},
+		}, {
+			"target.health > 20",
+			"player.buff(117828).count < 3",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"348", {"target.debuff(157736).duration < 4", "!player.moving", "!modifier.last(384)"}},
+		{"348", {"!target.debuff(157736)", "!player.moving", "!modifier.last(384)"}},
+		{"17962", "player.spell(17962).charges > 0"},
+		{"29722", "!player.moving"}
+	}, {
+		"player.firehack",
+		(function() return fetch('miraDestruConfig', 'aoe_units_check') end),
+		(function() return dynamicEval("target.area(10).enemies < "..fetch('miraDestruConfig', 'aoe_units_spin')) end),
+		(function() return dynamicEval("player.embers < "..fetch('miraDestruConfig', 'embers_fnb')) end),
+	}},
 	
-	{"348", {"target.debuff(157736).duration < 6", "!player.moving"}},
+	{{
+		{{	-- Shadowburn
+			{"!17877", "player.buff(80240)"},
+			{"!17877", "player.embers >= 25"},
+			{"!17877", "player.buff(113858)"},
+			{"!17877", "target.ttd < 15"},
+		}, {"talent(7, 1)", "target.health <= 20", "player.embers >= 10"}},
+		
+		{{
+			{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 2"}},
+			{"348", "!talent(7, 2)"},
+		}, {"target.debuff(157736).duration < 1.5", "!player.moving", "!modifier.last(384)"}},
+		
+		{"104232", "!player.buff(104232)", "target.ground"},
+		{"116858", {"player.buff(80240).duration > 2.5", "player.buff(80240).count >= 3"}},
+		{"17962", "player.spell(17962).charges = 2"},
+		{"!152108", {"talent(7, 2)", "toggle.stCataclysm", "player.spell(152108).cooldown = 0"}, "target.ground"},
+		
+		{{	-- Chaos Bolt (Charred Remains)
+			{"116858"},
+			{"116858", "player.buff(117828).count < 3"},
+		}, {
+			"talent(7, 1)",
+			"target.health > 20",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"116858", {"player.int.procs > 0", "player.embers >= 10"}},
+		
+		{{	-- Chaos Bolt (Non-Charred Remains)
+			{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
+			{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..(3 / ((GetHaste("player") / 100)  + 1))) end)},
+			{"116858", "target.ttd < 20"},
+			{"116858", {"player.buff(165455)", "player.embers >= 25"}},
+		}, {
+			"target.health > 20",
+			"player.buff(117828).count < 3",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"348", {"target.debuff(157736).duration < 4", "!player.moving", "!modifier.last(384)"}},
+		{"348", {"!target.debuff(157736)", "!player.moving", "!modifier.last(384)"}},
+		{"17962", "player.spell(17962).charges > 0"},
+		{"29722", "!player.moving"}
+	}, {
+		"player.firehack",
+		(function() if fetch('miraDestruConfig', 'aoe_units_check') == false then return true end end),
+	}},
 	
-	--[[{{
-		{"104232", "player.buff(117828)"},
-		{"104232", {"talent(6, 3)", "player.buff(108508).duration < 1"}},
-	}, "!player.buff(104232)", "target.ground"},]]
-	
-	{"348", {"!target.debuff(157736)", "!player.moving"}},
-	{"17962", "player.spell(17962).charges > 0"},
-	{"29722", "!player.moving"},
+	{{
+		{{	-- Shadowburn
+			{"!17877", "player.buff(80240)"},
+			{"!17877", "player.embers >= 25"},
+			{"!17877", "player.buff(113858)"},
+			{"!17877", "target.ttd < 15"},
+		}, {"talent(7, 1)", "target.health <= 20", "player.embers >= 10"}},
+		
+		{{
+			{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 2"}},
+			{"348", "!talent(7, 2)"},
+		}, {"target.debuff(157736).duration < 1.5", "!player.moving", "!modifier.last(384)"}},
+		
+		{"104232", "!player.buff(104232)", "target.ground"},
+		{"116858", {"player.buff(80240).duration > 2.5", "player.buff(80240).count >= 3"}},
+		{"17962", "player.spell(17962).charges = 2"},
+		{"!152108", {"talent(7, 2)", "toggle.stCataclysm", "player.spell(152108).cooldown = 0"}, "target.ground"},
+		
+		{{	-- Chaos Bolt (Charred Remains)
+			{"116858"},
+			{"116858", "player.buff(117828).count < 3"},
+		}, {
+			"talent(7, 1)",
+			"target.health > 20",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"116858", {"player.int.procs > 0", "player.embers >= 10"}},
+		
+		{{	-- Chaos Bolt (Non-Charred Remains)
+			{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
+			{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..(3 / ((GetHaste("player") / 100)  + 1))) end)},
+			{"116858", "target.ttd < 20"},
+			{"116858", {"player.buff(165455)", "player.embers >= 25"}},
+		}, {
+			"target.health > 20",
+			"player.buff(117828).count < 3",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb')) end)
+		}},
+		
+		{"348", {"target.debuff(157736).duration < 4", "!player.moving", "!modifier.last(384)"}},
+		{"348", {"!target.debuff(157736)", "!player.moving", "!modifier.last(384)"}},
+		{"17962", "player.spell(17962).charges > 0"},
+		{"29722", "!player.moving"}
+	}, {"!player.firehack","!modifier.control"}}
 }
 
 -- Out of combat

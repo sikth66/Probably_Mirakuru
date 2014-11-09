@@ -15,7 +15,10 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	
 	if event == "SPELL_AURA_APPLIED" and source == UnitGUID("player") then
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc + 1 end
-		if intProcs[spell] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs + 1 end
+		if intProcs[spell] ~= nil then
+			miLib.hasIntProcs = miLib.hasIntProcs + 1
+			miLib.intProcTimer = select(7,UnitBuff("player", GetSpellInfo(spell), nil))
+		end
 	end
 	if event == "SPELL_AURA_REMOVED" and source == UnitGUID("player") then
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end

@@ -160,7 +160,7 @@ local combatRotation = {
 			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
 			
 			-- Dark Soul
-			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
+			{"!113860", {"!talent(6, 1)", "player.spell(113860).cooldown = 0"}},
 		},"!toggle.bossOnly"},
 	},"modifier.cooldowns"},
 	

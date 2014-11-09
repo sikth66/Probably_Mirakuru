@@ -5,6 +5,7 @@
 miLib = {}
 miLib.hasIntProcs = 0
 miLib.affAuraProc = 0
+miLib.intProcTimer = 0
 
 -- Configure interface
 function miLib.displayFrame(frame)

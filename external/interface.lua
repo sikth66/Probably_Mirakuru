@@ -79,6 +79,7 @@ mirakuru_aff_config = {
 			text = "Agony Count",
 			key = "agony_units",
 			default_spin = 4,
+			width = 50,
 			default_check = false,
 			desc = "How many units to cast Agony on when multidotting."
 		},
@@ -273,14 +274,14 @@ mirakuru_destru_config = {
 		{type = "spacer"},
 		{
 			type = "spinner",
-			text = "Minimum Embers for Chaos Bolt",
+			text = "Min. Embers for Chaos Bolt",
 			key = "embers_cb",
 			width = 50,
 			min = 0,
 			max = 40,
 			default = 20,
 			step = 0.1,
-			desc = "This setting is ignored with temporary crit buffs!"
+			desc = "This setting is ignored with temporary crit buffs! Minimum Embers before casting Chaos Bolt."
 		},
 		{type = "spacer"},
 		{
@@ -290,9 +291,9 @@ mirakuru_destru_config = {
 			width = 50,
 			min = 0,
 			max = 40,
-			default = 32,
+			default = 30,
 			step = 0.1,
-			desc = "This setting is ignored with temporary crit buffs!"
+			desc = "This setting is ignored with temporary crit buffs! Maximum Embers before casting Chaos Bolt."
 		},
 		{type = "spacer"},{type = "spacer"},
 		{
@@ -305,6 +306,7 @@ mirakuru_destru_config = {
 			type = "checkspin",
 			text = "AOE Unit Count",
 			key = "aoe_units",
+			width = 50,
 			default_spin = 4,
 			default_check = false,
 			desc = "When enabled, start AoEing at this unit threshold."
@@ -316,6 +318,42 @@ mirakuru_destru_config = {
 			key = "multidotting",
 			default = true,
 			desc = "Toggles the ability to multidot on mouseover."
+		},
+		{type = "spacer"},{type = "spacer"},
+		{
+			type = "spinner",
+			text = "Min. Embers for Fire and Brimstone",
+			key = "embers_fnb",
+			width = 50,
+			min = 0,
+			max = 40,
+			default = 15,
+			step = 0.1,
+			desc = "Minimum embers before casting Fire and Brimstone to start AOEing."
+		},
+		{type = "spacer"},
+		{
+			type = "spinner",
+			text = "AoE Chaos Bolt minimum units",
+			key = "cb_fnb_units",
+			width = 50,
+			min = 0,
+			max = 40,
+			default = 4,
+			step = 1,
+			desc = "Minimum units in range required to cast Chaos Bolt with Fire and Brimstone without Charred Remains."
+		},
+		{type = "spacer"},
+		{
+			type = "spinner",
+			text = "AoE Chaos Bolt minimum Embers",
+			key = "cb_fnb_embers",
+			width = 50,
+			min = 0,
+			max = 40,
+			default = 25,
+			step = 1,
+			desc = "Minimum Embers to cast Chaos Bolt during Fire and Brimstone with Charred Remains."
 		},
 		{type = "spacer"},{type = "spacer"},
 		{

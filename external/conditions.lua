@@ -12,7 +12,13 @@ end)
 -- Universal, counts +Intellect procs and stacking procs (6+) stacks
 ProbablyEngine.condition.register("int.procs", function(target)
 	local count = miLib.hasIntProcs
-	return count
+	local timer = miLib.intProcTimer
+	
+	if select(1,GetSpecializationInfo(GetSpecialization())) == 267 then
+		if timer - GetTime() >= (3 / ((GetHaste("player") / 100)  + 1)) then return count end
+	else
+		return count
+	end
 end)
 
 -- Command Demon specific, checks if our pet knows a Special Ability
