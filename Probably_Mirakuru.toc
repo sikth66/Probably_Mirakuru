@@ -9,7 +9,11 @@
 external\core.lua
 external\listener.lua
 external\conditions.lua
-external\interface.lua
+external\multi_target.lua
+
+-- Interfaces
+interface\affliction.lua
+interface\destruction.lua
 
 -- Rotations
 Rotations\Warlock\Affliction.lua

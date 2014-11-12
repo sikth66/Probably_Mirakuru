@@ -1,8 +1,6 @@
 --[[
 	Combat log listener for Mirakuru Profiles
 	Created by Mirakuru
-	
-	Note: Catches combat log events
 ]]
 ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	local event		= select(2, ...)
