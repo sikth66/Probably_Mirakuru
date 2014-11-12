@@ -175,7 +175,11 @@ local combatRotation = {
 		}}
 	}, (function() return fetch('miraAffConfig', 'mortal_coil_check') end)},
 	{"!30283", {"talent(2, 3)", "modifier.ralt", "player.spell(30283).cooldown = 0"}, "ground" },
-	{"!111400", {"talent(4, 2)", "player.moving", "!player.buff(111400)"}},
+	{"!111400", {
+		"talent(4, 2)", "player.moving", "!player.buff(111400)",
+		(function() return fetch('miraAffConfig', 'burning_rush_check') end),
+		(function() return dynamicEval("player.health > " .. fetch('miraAffConfig', 'burning_rush_spin')) end)
+	}},
 	{"!108503", {	-- Grimoire of Sacrifice
 		"talent(5, 3)",
 		"!player.buff(108503)",
