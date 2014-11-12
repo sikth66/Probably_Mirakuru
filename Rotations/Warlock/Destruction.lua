@@ -77,6 +77,7 @@ local combatRotation = {
 		{"/run CastSpellByID(pet())", {
 			"!pet.alive",
 			"!pet.exists",
+			"!player.dead",
 			"!player.moving",
 			"!player.buff(108503)",
 			"timeout(petCombat, 3)",
@@ -346,7 +347,7 @@ local beforeCombat = {
 	
 	-- Summon Pet
 	{"/run CastSpellByID(pet())", {
-		"!pet.exists", "!pet.alive", "!player.moving", "!player.buff(108503)", "timeout(petOOC, 3)",
+		"!pet.exists", "!pet.alive", "!player.moving", "!player.buff(108503)", "timeout(petOOC, 3)", "!player.dead",
 		(function() return fetch('miraDestruConfig', 'auto_summon_pet') end),
 	}},
 	

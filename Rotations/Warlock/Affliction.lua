@@ -68,6 +68,7 @@ local combatRotation = {
 			{"!74434", {
 				"!pet.alive",
 				"!pet.exists",
+				"!player.dead",
 				"!player.buff(74434)",
 				"player.soulshards > 0",
 				(function() return fetch('miraAffConfig', 'auto_summon_pet_instant') end),
@@ -77,6 +78,7 @@ local combatRotation = {
 			{"/run CastSpellByID(pet())", {
 				"!pet.alive",
 				"!pet.exists",
+				"!player.dead",
 				"player.buff(74434)",
 				"timeout(petCombat, 3)",
 				(function() return fetch('miraAffConfig', 'auto_summon_pet') end),
@@ -88,6 +90,7 @@ local combatRotation = {
 		{"/run CastSpellByID(pet())", {
 			"!pet.alive",
 			"!pet.exists",
+			"!player.dead",
 			"!player.moving",
 			"!player.buff(108503)",
 			"timeout(petCombat, 3)",
@@ -389,7 +392,7 @@ local beforeCombat = {
 	
 	-- Summon Pet
 	{"/run CastSpellByID(pet())", {
-		"!pet.exists", "!pet.alive", "!player.moving", "!player.buff(108503)", "timeout(affPet, 3)",
+		"!pet.exists", "!pet.alive", "!player.moving", "!player.buff(108503)", "timeout(affPet, 3)", "!player.dead",
 		(function() return fetch('miraAffConfig', 'auto_summon_pet') end)
 	}},
 	

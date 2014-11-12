@@ -3,7 +3,7 @@
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 2.5
+## Version: 2.5.1
 
 -- Library References
 external\core.lua
