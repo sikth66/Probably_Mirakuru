@@ -66,6 +66,14 @@ mirakuru_aff_config = {
 			key = "hs_pot_healing",
 			desc = "Enable automatic usage of Healing Tonic or Healthstone when your HP drops bellow this %."
 		},
+		{type = "spacer"},
+		{
+			type = "checkbox",
+			default = true,
+			text = "Save Haunt for Bosses",
+			key = "haunt_boss",
+			desc = "Prevents usage of Haunt on any units besides rares, rare-elites and bosses."
+		},
 		{type = "spacer"},{type = "spacer"},
 		{
 			type = "header",

@@ -17,9 +17,19 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 			miLib.hasIntProcs = miLib.hasIntProcs + 1
 			miLib.intProcTimer = select(7,UnitBuff("player", GetSpellInfo(spell), nil))
 		end
+		
+		-- Immolate Counter
+		if spell == 348 and (UnitExists("target") and UnitGUID("target") ~= target) then
+			miLib.immoCount = miLib.immoCount + 1
+		end
 	end
 	if event == "SPELL_AURA_REMOVED" and source == UnitGUID("player") then
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
 		if intProcs[spell] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs - 1 end
+		
+		-- Immolate Counter
+		if spell == 348 and (UnitExists("target") and UnitGUID("target") ~= target) then
+			miLib.immoCount = miLib.immoCount - 1
+		end
 	end
 return end)

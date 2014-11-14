@@ -16,11 +16,13 @@ end
 -- Pet Functions
 function pet()
 	local pet = fetch('miraAffConfig', 'summon_pet')
-	if pet ~= nil then return pet end
+	local can_cast = ProbablyEngine.parser.can_cast
+	if pet ~= nil and can_cast(pet, "player", false) then return pet end
 end
 function service_pet()
 	local servicepet = fetch('miraAffConfig', 'summon_pet')
-	if servicepet ~= nil then return servicepet end
+	local can_cast = ProbablyEngine.parser.can_cast
+	if servicepet ~= nil and can_cast(servicepet, "target", false) then return servicepet end
 end
 
 -- Buttons
@@ -297,17 +299,35 @@ local combatRotation = {
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"}
 			}, {"player.soulshards = 4", "!modifier.last(48181)"}}
-		}, {"!talent(7, 1)", "!player.moving", "player.soulshards > 0", "!modifier.last(48181)"}},
+		}, {
+			"!talent(7, 1)", "!player.moving", "player.soulshards > 0", "!modifier.last(48181)",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Proper Soulburn usage when talented Soulburn: Haunt
 			{"!74434", "!player.buff(157698)"},
 			{"!74434", { "player.soulshards = 4", "player.buff(157698).duration < 5"}}
-		}, {"talent(7, 1)", "!player.buff(74434)", "!player.moving", "player.soulshards > 0"}},
+		}, {
+			"talent(7, 1)", "!player.buff(74434)", "!player.moving", "player.soulshards > 0",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Soulburn: Haunt (Talent)
 			{"!48181", {"player.buff(74434)", "player.buff(157698).duration < 5"}},
 			{"!48181", "player.soulshards = 4" }
-		}, {"talent(7, 1)", "!modifier.last(48181)", "player.soulshards > 0", "!player.moving"}},
+		}, {
+			"talent(7, 1)", "!modifier.last(48181)", "player.soulshards > 0", "!player.moving",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Agony
 			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
@@ -345,24 +365,42 @@ local combatRotation = {
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"}
-			}, "target.debuff(48181).duration <= 5"},
+			}, {"target.debuff(48181).duration <= 5", "!modifier.last(48181)"}},
 			{{
 				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"}
-			}, "player.soulshards = 4"}
-		}, {"!talent(7, 1)", "!player.moving", "player.soulshards > 0", "!modifier.last(48181)"}},
+			}, {"player.soulshards = 4", "!modifier.last(48181)"}}
+		}, {
+			"!talent(7, 1)", "!player.moving", "player.soulshards > 0", "!modifier.last(48181)",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Proper Soulburn usage when talented Soulburn: Haunt
 			{"!74434", "!player.buff(157698)"},
 			{"!74434", { "player.soulshards = 4", "player.buff(157698).duration < 5"}}
-		}, {"talent(7, 1)", "!player.buff(74434)", "!player.moving", "player.soulshards > 0"}},
+		}, {
+			"talent(7, 1)", "!player.buff(74434)", "!player.moving", "player.soulshards > 0",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Soulburn: Haunt (Talent)
 			{"!48181", {"player.buff(74434)", "player.buff(157698).duration < 5"}},
 			{"!48181", "player.soulshards = 4" }
-		}, {"talent(7, 1)", "!modifier.last(48181)", "player.soulshards > 0", "!player.moving"}},
+		}, {
+			"talent(7, 1)", "!modifier.last(48181)", "player.soulshards > 0", "!player.moving",
+			(function()
+				if fetch('miraAffConfig', 'haunt_boss') then return dynamicEval("target.boss") end
+				if not fetch('miraAffConfig', 'haunt_boss') then return true end
+			end)
+		}},
 		
 		{{	-- Agony
 			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
@@ -427,7 +465,6 @@ local beforeCombat = {
 		{"/cast "..GetSpellInfo(172), "target.alive"}
 	}, (function() return fetch('miraAffConfig', 'force_attack') end)}
 }
-
 
 -- Register our rotation
 ProbablyEngine.rotation.register_custom(265, "[|cff005522Mirakuru Rotations|r] Affliction", combatRotation, beforeCombat, btn)
