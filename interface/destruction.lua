@@ -95,18 +95,6 @@ mirakuru_destru_config = {
 		{type = "spacer"},
 		{
 			type = "spinner",
-			text = "Min. Embers for Chaos Bolt",
-			key = "embers_cb",
-			width = 50,
-			min = 0,
-			max = 40,
-			default = 20,
-			step = 0.1,
-			desc = "This setting is ignored with temporary crit buffs! Minimum Embers before casting Chaos Bolt."
-		},
-		{type = "spacer"},
-		{
-			type = "spinner",
 			text = "Max Embers for Chaos Bolt",
 			key = "embers_cb_max",
 			width = 50,
@@ -221,23 +209,23 @@ mirakuru_destru_config = {
 			list = {
 				{
 					text = "Imp",
-					key = "imp"
+					key = "111859"
 				},
 				{
 					text = "Voidwalker",
-					key = "voidwalker"
+					key = "111895"
 				},
 				{
 					text = "Felhunter",
-					key = "felhunter"
+					key = "111897"
 				},
 				{
 					text = "Succubus",
-					key = "succubus"
+					key = "111896"
 				}
 			},
 			desc = "Set which pet use for Grimoire of Service.",
-			default = "felhunter",
+			default = "111897",
 		},
 		{type = "spacer"},{type = "spacer"},
 		{

@@ -15,7 +15,7 @@ ProbablyEngine.condition.register("int.procs", function(target)
 	local timer = miLib.intProcTimer
 	
 	if select(1,GetSpecializationInfo(GetSpecialization())) == 267 then
-		if timer - GetTime() >= (3 / ((GetHaste("player") / 100)  + 1)) then return count end
+		if timer - GetTime() >= (2.5 / ((GetHaste("player") / 100)  + 1)) then return count end
 	else
 		return count
 	end
