@@ -229,12 +229,11 @@ local combatRotation = {
 			{"!152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
 			{"108683", "!player.buff(108683)"},
 			{"108686", {"!target.debuff(157736)", "!player.moving"}},
-			{"108685", "player.spell(108685).charges = 2"},
-			{"108686", {"target.debuff(157736).duration < 6", "!player.moving"}},
 			{"157701", {
 				"talent(7, 1)",
 				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
 			}},
+			{"108685", "player.spell(108685).charges = 2"},
 			{"114654", "!player.moving"}
 		}, {"!player.firehack", "modifier.control"}}
 	}, "toggle.aoe"},
