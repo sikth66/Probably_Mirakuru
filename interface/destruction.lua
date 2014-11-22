@@ -88,8 +88,8 @@ mirakuru_destru_config = {
 			width = 50,
 			min = 0,
 			max = 40,
-			default = 0.9,
-			step = 0.1,
+			default = 9,
+			step = 1,
 			desc = "Minimum Embers required before casting Dark Soul: Instability."
 		},
 		{type = "spacer"},
@@ -101,7 +101,7 @@ mirakuru_destru_config = {
 			min = 0,
 			max = 40,
 			default = 30,
-			step = 0.1,
+			step = 1,
 			desc = "This setting is ignored with temporary crit buffs! Maximum Embers before casting Chaos Bolt."
 		},
 		{type = "spacer"},{type = "spacer"},
@@ -128,7 +128,7 @@ mirakuru_destru_config = {
 			min = 0,
 			max = 40,
 			default = 15,
-			step = 0.1,
+			step = 1,
 			desc = "Minimum embers before casting Fire and Brimstone to start AOEing."
 		},
 		{type = "spacer"},
@@ -196,6 +196,14 @@ mirakuru_destru_config = {
 				{
 					text = "Succubus",
 					key = "712"
+				},
+				{
+					text = "Doomguard",
+					key = "157757"
+				},
+				{
+					text = "Infernal",
+					key = "157898"
 				}
 			},
 			desc = "Set which pet to summon or sacrifice.",
@@ -222,6 +230,14 @@ mirakuru_destru_config = {
 				{
 					text = "Succubus",
 					key = "111896"
+				},
+				{
+					text = "Doomguard",
+					key = "157906"
+				},
+				{
+					text = "Infernal",
+					key = "157907"
 				}
 			},
 			desc = "Set which pet use for Grimoire of Service.",

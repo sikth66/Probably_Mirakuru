@@ -52,16 +52,27 @@ function miLib.displayFrame(frame)
 	end
 end
 
--- Test
---[[
-local PI_2 = (math.pi * 2)
-function infront(a, b)
-	local aX, aY, aZ = ObjectPosition(a)
-	local bX, bY, bZ = ObjectPosition(b)
-	local playerFacing = GetPlayerFacing()
-	local facing = math.atan2(bY - aY, bX - aX) % PI_2
-	return math.abs(math.deg(playerFacing - facing)) > 90
+-- Crowd Control abilities
+function miLib.CC(unit)
+	local CC = {118,28272,28271,61305,61721,61780,9484,3355,19386,339,6770,6358,20066,51514,115078,115268}
+	for i=1,#CC do
+		if UnitDebuff(unit,GetSpellInfo(CC[i])) then return true end
+	end
+	return false
+end
+
+--[[function getCreatureType(unit)
+	local creature = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
+	for i=1, #creature do
+		if UnitCreatureType(unit) == creature[i] then return false end
+	end
+	
+	-- Battle Pets
+	if UnitIsBattlePet(unit)
+		and UnitIsWildBattlePet(unit) then return false else return true end
 end]]
+
+-- Checks if a unit is within our 180 degree cone of attack
 function infront(unit)
 	local aX, aY, aZ = ObjectPosition(unit)
 	local bX, bY, bZ = ObjectPosition('player')

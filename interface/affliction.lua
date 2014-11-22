@@ -162,6 +162,14 @@ mirakuru_aff_config = {
 				{
 					text = "Succubus",
 					key = "712"
+				},
+				{
+					text = "Doomguard",
+					key = "157757"
+				},
+				{
+					text = "Infernal",
+					key = "157898"
 				}
 			},
 			desc = "Set which pet to summon or sacrifice.",
@@ -188,6 +196,14 @@ mirakuru_aff_config = {
 				{
 					text = "Succubus",
 					key = "111896"
+				},
+				{
+					text = "Doomguard",
+					key = "157906"
+				},
+				{
+					text = "Infernal",
+					key = "157907"
 				}
 			},
 			desc = "Set which pet use for Grimoire of Service.",

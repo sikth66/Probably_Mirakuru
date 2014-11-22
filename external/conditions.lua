@@ -2,6 +2,11 @@
 	Custom conditions for Mirakuru Profiles
 	Created by Mirakuru
 ]]
+-- Check if a unit is crowd controlled
+ProbablyEngine.condition.register("cc", function(target)
+	local isCC = miLib.CC
+	if isCC then return true else return false end
+end)
 
 -- Affliction specific, counts beneficient procs for Haunt
 ProbablyEngine.condition.register("aff.procs", function(target)
