@@ -52,6 +52,11 @@ function miLib.displayFrame(frame)
 	end
 end
 
+-- Rounding function
+function miLib.round(num, idp)
+	return tonumber(string.format("%." .. (idp or 0) .. "f", num))
+end
+
 -- Crowd Control abilities
 function miLib.CC(unit)
 	local CC = {118,28272,28271,61305,61721,61780,9484,3355,19386,339,6770,6358,20066,51514,115078,115268}

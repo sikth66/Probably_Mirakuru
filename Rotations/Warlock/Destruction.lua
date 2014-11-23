@@ -275,7 +275,13 @@ local combatRotation = {
 			}, {"target.debuff(157736).duration < 1.5", "!player.buff(113858)"}},
 			{"348", {"!talent(7, 2)", "!target.debuff(157736)"}},
 			{"348", {"talent(7, 2)", "!target.debuff(157736)", "player.spell(152108).cooldown > 6"}}
-		}, {"!player.moving", "!modifier.last(348)", "player.buff(80240).count < 3"}},
+		}, {"!player.moving", "!modifier.last(348)",
+			(function()
+				if dynamicEval("player.buff(80240).count >= 3") then
+					if dynamicEval("player.embers >= 10") then return false else return true end
+				else return true end
+			end)
+		}},
 		
 		-- Oops, close on capping embers
 		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
@@ -290,33 +296,41 @@ local combatRotation = {
 		}, "target.ground"},
 		
 		{{	-- Prioritize cleaving with Havoc
-			{"!17877", "target.health <= 20"},
+			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
 			{"!116858", {
 				"target.health > 20", "!player.moving", "!player.casting(116858)", "player.buff(80240).count >= 3",
-				(function() return dynamicEval("player.buff(80240).duration >= "..(2.5 / ((GetHaste("player") / 100)  + 1))) end)
+				(function() return dynamicEval("player.buff(80240).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)
 			}}
-		}, {"player.buff(80240)", "player.embers >= 10"}},
+		}, "player.embers >= 10"},
 		
 		-- Cataclysm of fucks given
 		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0"}, "target.ground"},
 		
-		{{
+		{{	-- Interrupt regular profile behavior if we can cleave with Havoc
 			{"17962", {"player.spell(17962).charges = 2", "target.debuff(157736)"}},
 			
 			{{	-- They didn't remove Chaos Bolt yet?
 				{"116858", "player.int.procs > 0"},
 				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
-				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..(2.5 / ((GetHaste("player") / 100)  + 1))) end)},
+				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
 				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
 			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving", "!player.casting(116858)"}},
 			
 			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
 			{"17962", "player.spell(17962).charges > 0"},
+			
 			{{	-- Immolate Multitarget
 				{"348", "@miLib.immolate()"}
 			}, "modifier.multitarget"},
+			
 			{"29722", "!player.moving"}
-		}, "player.buff(80240).count < 3"}
+		}, {
+			(function()
+				if dynamicEval("player.buff(80240).count >= 3") then
+					if dynamicEval("player.embers >= 10") then return false else return true end
+				else return true end
+			end)
+		}}
 	}, {"player.firehack",
 		(function()
 			local aoe = ProbablyEngine.config.read("button_states").aoe
@@ -327,7 +341,7 @@ local combatRotation = {
 			else return true end
 		end)
 	}},
-	
+
 	{{	-- Non-Firehack Support
 		{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
 		
@@ -344,7 +358,13 @@ local combatRotation = {
 			}, {"target.debuff(157736).duration < 1.5", "!player.buff(113858)"}},
 			{"348", {"!talent(7, 2)", "!target.debuff(157736)"}},
 			{"348", {"talent(7, 2)", "!target.debuff(157736)", "player.spell(152108).cooldown > 6"}}
-		}, {"!player.moving", "!modifier.last(348)", "player.buff(80240).count < 3"}},
+		}, {"!player.moving", "!modifier.last(348)",
+			(function()
+				if dynamicEval("player.buff(80240).count >= 3") then
+					if dynamicEval("player.embers >= 10") then return false else return true end
+				else return true end
+			end)
+		}},
 		
 		-- Oops, close on capping embers
 		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
@@ -359,30 +379,36 @@ local combatRotation = {
 		}, "target.ground"},
 		
 		{{	-- Prioritize cleaving with Havoc
-			{"!17877", "target.health <= 20"},
+			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
 			{"!116858", {
 				"target.health > 20", "!player.moving", "!player.casting(116858)", "player.buff(80240).count >= 3",
-				(function() return dynamicEval("player.buff(80240).duration >= "..(2.5 / ((GetHaste("player") / 100)  + 1))) end)
+				(function() return dynamicEval("player.buff(80240).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)
 			}}
-		}, {"player.buff(80240)", "player.embers >= 10"}},
+		}, "player.embers >= 10"},
 		
 		-- Cataclysm of fucks given
 		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0"}, "target.ground"},
 		
-		{{
+		{{	-- Interrupt regular profile behavior if we can cleave with Havoc
 			{"17962", {"player.spell(17962).charges = 2", "target.debuff(157736)"}},
 			
 			{{	-- They didn't remove Chaos Bolt yet?
 				{"116858", "player.int.procs > 0"},
 				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
-				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..(2.5 / ((GetHaste("player") / 100)  + 1))) end)},
+				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
 				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
 			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving", "!player.casting(116858)"}},
 			
 			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
 			{"17962", "player.spell(17962).charges > 0"},
 			{"29722", "!player.moving"}
-		}, "player.buff(80240).count < 3"}
+		}, {
+			(function()
+				if dynamicEval("player.buff(80240).count >= 3") then
+					if dynamicEval("player.embers >= 10") then return false else return true end
+				else return true end
+			end)
+		}}
 	}, {"!player.firehack", "!modifier.control"}}
 }
 
