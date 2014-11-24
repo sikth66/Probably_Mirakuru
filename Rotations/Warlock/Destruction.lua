@@ -218,6 +218,10 @@ local combatRotation = {
 	{"!137587", {"talent(6, 2)", "player.moving", "player.spell(137587).cooldown = 0"}},
 	
 	
+	-- Rain of Fire hotkey --
+	{"104232", "modifier.lalt", "mouseover.ground"},
+	
+	
 	-- AoE Rotation --
 	{{
 		{{	-- Firehack support
@@ -250,7 +254,9 @@ local combatRotation = {
 			}},
 			{"108685", "player.spell(108685).charges > 0"},
 			{"114654", "!player.moving"}
-		}, {"!player.firehack", "modifier.control"}}
+		}, {"!player.firehack", "modifier.control",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) end)
+		}}
 	}, "toggle.aoe"},
 	
 	
@@ -409,7 +415,16 @@ local combatRotation = {
 				else return true end
 			end)
 		}}
-	}, {"!player.firehack", "!modifier.control"}}
+	}, {"!player.firehack",
+		(function()
+			local aoe = ProbablyEngine.config.read("button_states").aoe
+			if aoe then
+				if dynamicEval("modifier.control") then
+					if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then return false else return true end
+				else return true end
+			else return true end
+		end)
+	}}
 }
 
 -- Out of combat
