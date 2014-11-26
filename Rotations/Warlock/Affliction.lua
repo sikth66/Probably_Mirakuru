@@ -485,4 +485,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(265, "[|cff005522Mirakuru Rotations|r] Affliction", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(265, "[|cff005522Mirakuru Rotations|r] Affliction Warlock", combatRotation, beforeCombat, btn)

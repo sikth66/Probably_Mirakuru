@@ -444,4 +444,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction Warlock", combatRotation, beforeCombat, btn)

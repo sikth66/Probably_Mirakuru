@@ -15,12 +15,6 @@ end
 
 -- Buttons
 local btn = function()
-	--ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\ability_warlock_fireandbrimstone.png', 'Enable AOE', "Enables the AOE rotation within the combat rotation.")	
-	ProbablyEngine.toggle.create('GUI', 'Interface\\Icons\\trade_engineering.png"', 'GUI', 'Toggle GUI', (function() miLib.displayFrame(mirakuru_destru_config) end))
-	
-	-- Force open/close to save default settings
-	--miLib.displayFrame(mirakuru_destru_config)
-	--miLib.displayFrame(mirakuru_destru_config)
 end
 
 
@@ -31,4 +25,4 @@ local combatRotation = {}
 local beforeCombat = {}
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(258, "[|cff005522Mirakuru Rotations|r] Shadow", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(258, "[|cff005522Mirakuru Rotations|r] Shadow Priest", combatRotation, beforeCombat, btn)

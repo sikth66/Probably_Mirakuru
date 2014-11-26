@@ -16,6 +16,7 @@ external\LibBossIDs-1.0\LibBossIDs-1.0.lua
 -- Interfaces
 interface\affliction.lua
 interface\destruction.lua
+interface\shadow.lua
 
 -- Rotations
 Rotations\Priest\Shadow.lua
