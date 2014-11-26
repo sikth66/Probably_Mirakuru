@@ -95,6 +95,7 @@ function miLib.snipe(spell, hp)
 	-- No spell/hp to snipe with given
 	if not hp then return false end
 	if not spell then return false end
+	if not numGroupMembers or numGroupMembers == 0 then return false end
 	
 	-- Raid or Party?
 	if IsInRaid() then groupType = "raid" else groupType = "party" end
