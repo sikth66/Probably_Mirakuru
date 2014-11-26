@@ -74,14 +74,6 @@ mirakuru_destru_config = {
 		},
 		{type = "rule"},
 		{
-			type = "checkbox",
-			default = true,
-			text = "Use Rain of Fire in Single-target rotation.",
-			key = "rof_st",
-			desc = "Enables the use of Rain of Fire in the Single Target rotation."
-		},
-		{type = "spacer"},
-		{
 			type = "spinner",
 			text = "Minimum Embers for Dark Soul",
 			key = "embers_darksoul",

@@ -225,8 +225,6 @@ local combatRotation = {
 	-- AoE Rotation --
 	{{
 		{{	-- Firehack support
-			{"104232", "!player.buff(104232)", "target.ground"},
-			{"104232", "player.buff(104232).duration <= 2", "target.ground"},
 			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
 			{"108683", "!player.buff(108683)"},
 			{"108686", {"!target.debuff(157736)", "!player.moving"}},
@@ -243,8 +241,6 @@ local combatRotation = {
 		}},
 		
 		{{	-- Non-Firehack Support
-			{"104232", "!player.buff(104232)", "target.ground"},
-			{"104232", "player.buff(104232).duration <= 2", "target.ground"},
 			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
 			{"108683", "!player.buff(108683)"},
 			{"108686", {"!target.debuff(157736)", "!player.moving"}},
@@ -291,15 +287,6 @@ local combatRotation = {
 		
 		-- Oops, close on capping embers
 		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
-		
-		-- Rain of Fire
-		{"104232", {
-			"!player.buff(104232)",
-			"!player.buff(117828)",
-			"target.distance < 30",
-			"player.spell(17962).charges = 0",
-			(function() return fetch('miraDestruConfig', 'rof_st') end)
-		}, "target.ground"},
 		
 		{{	-- Prioritize cleaving with Havoc
 			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
@@ -374,15 +361,6 @@ local combatRotation = {
 		
 		-- Oops, close on capping embers
 		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
-		
-		-- Rain of Fire
-		{"104232", {
-			"!player.buff(104232)",
-			"!player.buff(117828)",
-			"target.distance < 30",
-			"player.spell(17962).charges = 0",
-			(function() return fetch('miraDestruConfig', 'rof_st') end)
-		}, "target.ground"},
 		
 		{{	-- Prioritize cleaving with Havoc
 			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
