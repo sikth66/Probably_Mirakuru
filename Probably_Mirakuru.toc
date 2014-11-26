@@ -3,7 +3,7 @@
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 2.6.5
+## Version: 2.6.7
 
 -- Library References
 external\core.lua
@@ -16,7 +16,6 @@ external\LibBossIDs-1.0\LibBossIDs-1.0.lua
 -- Interfaces
 interface\affliction.lua
 interface\destruction.lua
-interface\shadow.lua
 
 -- Rotations
 Rotations\Priest\Shadow.lua

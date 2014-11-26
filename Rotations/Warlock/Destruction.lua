@@ -265,10 +265,13 @@ local combatRotation = {
 		}, "modifier.multitarget"},
 		
 		{{	-- Shadowburn
+			{{
+				{"!17877", "@miLib.shadowburn()"}
+			}, "modifier.multitarget"},
 			{"!17877", "player.embers >= 25"},
 			{"!17877", "player.buff(113858).duration >= 1"},
 			{"!17877", "target.ttd < 10"}
-		}, "target.health <= 20"},
+		}, {"target.health <= 20", "player.embers >= 10"}},
 		
 		{{	-- Immolate
 			{{
@@ -339,10 +342,13 @@ local combatRotation = {
 		{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
 		
 		{{	-- Shadowburn
+			{{
+				{"!17877", "@miLib.snipe(17877, 20)"}
+			}, "modifier.multitarget"},
 			{"!17877", "player.embers >= 25"},
 			{"!17877", "player.buff(113858).duration >= 1"},
 			{"!17877", "target.ttd < 10"}
-		}, "target.health <= 20"},
+		}, {"target.health <= 20", "player.embers >= 10"}},
 		
 		{{	-- Immolate
 			{{
@@ -444,4 +450,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction Warlock", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction", combatRotation, beforeCombat, btn)

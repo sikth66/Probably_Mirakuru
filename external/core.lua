@@ -86,4 +86,36 @@ function infront(unit)
 	return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
 end
 
+function miLib.snipe(spell, hp)
+	local groupType = nil
+	local isCC = miLib.CC
+	local numGroupMembers = GetNumGroupMembers()
+	local can_cast = ProbablyEngine.parser.can_cast
+	
+	-- No spell/hp to snipe with given
+	if not hp then return false end
+	if not spell then return false end
+	
+	-- Raid or Party?
+	if IsInRaid() then groupType = "raid" else groupType = "party" end
+	
+	-- Find a valid target
+	for i=1,#numGroupMembers do
+		local target = groupType..i.."target"
+		if not UnitIsUnit("player", groupType..i) then
+			local health = math.floor((UnitHealth(target) / UnitHealthMax(target)) * 100)
+			if UnitCanAttack("player", target)
+				and health <= hp
+				and can_cast(spell, target, false)
+				and not UnitIsUnit("target", target) then
+					if not isCC(target) then
+						ProbablyEngine.dsl.parsedTarget = target
+						return true
+					end
+			end
+		end
+	end
+	return false
+end
+
 ProbablyEngine.library.register("miLib", miLib)

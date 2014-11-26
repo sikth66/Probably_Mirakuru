@@ -1,10 +1,7 @@
 --[[
-	Multi-target function for Mirakuru Profiles
+	Multi-target functions for Mirakuru Profiles
 	Created by Mirakuru
-	
-	Note: In development, do not use!!
 ]]
--- Havoc
 function miLib.havoc()
 	local isCC = miLib.CC
 	local totalObjects = ObjectCount()
@@ -49,7 +46,6 @@ function miLib.havoc()
 	return false
 end
 
--- Immolate Multidotting
 function miLib.immolate()
 	local isCC = miLib.CC
 	local counter = miLib.immoCount
@@ -71,6 +67,32 @@ function miLib.immolate()
 			and Distance(object, "player") <= 39.9
 			and not UnitDebuff(object, GetSpellInfo(348), nil, "PLAYER") then
 				if not isCC(object) then
+					ProbablyEngine.dsl.parsedTarget = object
+					return true
+				end
+		end
+	end
+	return false
+end
+
+function miLib.shadowburn()
+	local isCC = miLib.CC
+	local totalObjects = ObjectCount()
+	local can_cast = ProbablyEngine.parser.can_cast
+	
+	for i=1, totalObjects do
+		local object = ObjectWithIndex(i)
+		if ObjectIsType(object, ObjectTypes.Unit)
+			and infront(object)
+			and not UnitIsPlayer(object)
+			and UnitAffectingCombat(object)
+			and can_cast(17877, object, false)
+			and LineOfSight(object, "player")
+			and UnitCanAttack("player", object)
+			and not UnitIsUnit("target", object)
+			and Distance(object, "player") <= 39.9 then
+				local health = math.floor((UnitHealth(object) / UnitHealthMax(object)) * 100)
+				if not isCC(object) and health <= 20 then
 					ProbablyEngine.dsl.parsedTarget = object
 					return true
 				end
