@@ -2,12 +2,15 @@
 	Multi-target functions for Mirakuru Profiles
 	Created by Mirakuru
 ]]
+
+-- The functions bellow use the Object Manager supplied by Firehack to search and verify
+-- potential multidotting and cleaving targets. These might be a little resource heavy
+-- so use with caution.
+
+-- Havoc cleaving
 function miLib.havoc()
-	local isCC = miLib.CC
 	local totalObjects = ObjectCount()
-	local parse = ProbablyEngine.dsl.parse
 	local fetch = ProbablyEngine.interface.fetchKey
-	local aoe = ProbablyEngine.config.read("button_states").aoe
 	local charges,maxCharges,start,duration = GetSpellCharges(17962)
 	local _,_,_,backdraft = UnitBuff("player", GetSpellInfo(117828))
 	local _,_,_,_,_,_,darksoul = UnitBuff("player", GetSpellInfo(113858))
@@ -24,20 +27,21 @@ function miLib.havoc()
 		if UnitPower("player", SPELL_POWER_BURNING_EMBERS, true) < (fetch('miraDestruConfig', 'embers_cb_max') - 2) then return false end
 	end
 	
-	if aoe then
-		if parse("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) then return false end
+	if ProbablyEngine.config.read("button_states").aoe then
+		if ProbablyEngine.dsl.parse("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) then return false end
 	end
 	
 	for i=1, totalObjects do
 		local object = ObjectWithIndex(i)
 		if ObjectIsType(object, ObjectTypes.Unit)
+			and infront(object)
 			and not UnitIsPlayer(object)
 			and UnitAffectingCombat(object)
 			and UnitCanAttack("player", object)
 			and not UnitIsUnit("target", object)
-			and Distance(object, "player") <= 39.9
+			and ProbablyEngine.condition["distance"](object) <= 40
 			and LineOfSight(object, "player") then
-				if not isCC(object) then
+				if not miLib.CC(object) then
 					ProbablyEngine.dsl.parsedTarget = object
 					return true
 				end
@@ -46,13 +50,38 @@ function miLib.havoc()
 	return false
 end
 
+-- Shadowburn sniping
+function miLib.snipe_fh(spell, hp)
+	local totalObjects = ObjectCount()
+	
+	if not spell or not hp then return false end
+	
+	for i=1, totalObjects do
+		local object = ObjectWithIndex(i)
+		if ObjectIsType(object, ObjectTypes.Unit)
+			and infront(object)
+			and not UnitIsPlayer(object)
+			and UnitAffectingCombat(object)
+			and LineOfSight(object, "player")
+			and UnitCanAttack("player", object)
+			and not UnitIsUnit("target", object)
+			and ProbablyEngine.condition["health"](object) <= hp
+			and ProbablyEngine.parser.can_cast(spell, object, true)
+			and ProbablyEngine.condition["distance"](object) <= 40 then
+				if not miLib.CC(object) then
+					ProbablyEngine.dsl.parsedTarget = object
+					return true
+				end
+		end
+	end
+	return false
+end
+
+-- Immolate multidotting
 function miLib.immolate()
-	local isCC = miLib.CC
-	local counter = miLib.immoCount
 	local totalObjects = ObjectCount()
-	local can_cast = ProbablyEngine.parser.can_cast
 	
-	if counter >= 4 then return false end
+	if miLib.immoCount >= 4 then return false end
 	
 	for i=1, totalObjects do
 		local object = ObjectWithIndex(i)
@@ -60,13 +89,13 @@ function miLib.immolate()
 			and infront(object)
 			and not UnitIsPlayer(object)
 			and UnitAffectingCombat(object)
-			and can_cast(348, object, false)
+			and ProbablyEngine.parser.can_cast(348, object, false)
 			and LineOfSight(object, "player")
 			and UnitCanAttack("player", object)
 			and not UnitIsUnit("target", object)
-			and Distance(object, "player") <= 39.9
+			and ProbablyEngine.condition["distance"](object) <= 40
 			and not UnitDebuff(object, GetSpellInfo(348), nil, "PLAYER") then
-				if not isCC(object) then
+				if not miLib.CC(object) then
 					ProbablyEngine.dsl.parsedTarget = object
 					return true
 				end
@@ -75,25 +104,60 @@ function miLib.immolate()
 	return false
 end
 
-function miLib.shadowburn()
-	local isCC = miLib.CC
-	local totalObjects = ObjectCount()
-	local can_cast = ProbablyEngine.parser.can_cast
+-- The functions bellow tries to search all available raid and party members for
+-- a valid target to multidot, cleave or snipe. It's less resource heavy but obviously
+-- have it's own downsides compared to using the Object Manager.
+
+-- Sniping
+function miLib.snipe(spell, hp)
+	-- No spell/hp to snipe with given
+	if not hp or not spell then return false end
 	
-	for i=1, totalObjects do
-		local object = ObjectWithIndex(i)
-		if ObjectIsType(object, ObjectTypes.Unit)
-			and infront(object)
-			and not UnitIsPlayer(object)
-			and UnitAffectingCombat(object)
-			and can_cast(17877, object, false)
-			and LineOfSight(object, "player")
-			and UnitCanAttack("player", object)
-			and not UnitIsUnit("target", object)
-			and Distance(object, "player") <= 39.9 then
-				local health = math.floor((UnitHealth(object) / UnitHealthMax(object)) * 100)
-				if not isCC(object) and health <= 20 then
-					ProbablyEngine.dsl.parsedTarget = object
+	-- Raid or Party?
+	local groupType = IsInRaid() and "raid" or "party"
+	
+	-- Find a valid target
+	for i = 1, GetNumGroupMembers() do
+		local target = groupType..i.."target"
+		local health = math.floor((UnitHealth(target) / UnitHealthMax(target)) * 100)
+		if not UnitIsUnit("target", target)
+			and health <= hp
+			and UnitCanAttack("player", target)
+			and ProbablyEngine.condition["distance"](target) <= 40
+			and ProbablytEngine.parser.can_cast(spell, target, false) then
+				if not miLib.CC(target) then
+					ProbablyEngine.dsl.parsedTarget = target
+					return true
+				end
+		end
+	end
+	return false
+end
+
+-- Multidotting
+function miLib.dot(spell, count)
+	-- No spell was passed
+	if not spell or not count then return false end
+	
+	-- Raid or Party?
+	local groupType = IsInRaid() and "raid" or "party"
+	
+	-- Find the counters
+	if spell == 348 and miLib.immoCount >= count then return false end
+	if spell == 30108 and miLib.auCount >= count then return false end
+	if spell == 172 and miLib.corrCount >= count then return false end
+	if spell == 980 and miLib.agonyCount >= count then return false end
+	
+	-- Find a valid target
+	for i = 1, GetNumGroupMembers() do
+		local target = groupType..i.."target"
+		if not UnitIsUnit("target", target)
+			and UnitCanAttack("player", target)
+			and ProbablyEngine.condition["distance"](target) <= 40
+			and not UnitDebuff(target, GetSpellInfo(spell), nil, "PLAYER")
+			and ProbablytEngine.parser.can_cast(spell, target, false) then
+				if not miLib.CC(target) then
+					ProbablyEngine.dsl.parsedTarget = target
 					return true
 				end
 		end

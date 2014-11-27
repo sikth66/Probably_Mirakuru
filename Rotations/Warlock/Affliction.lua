@@ -121,56 +121,36 @@ local combatRotation = {
 	
 	{{	-- Cooldown Management --
 		{{	-- Boss Only
-			-- Trinkets
 			{"#trinket1"},
 			{"#trinket2"},
-			
-			-- Racials
 			{"!26297", "player.spell(26297).cooldown = 0"},
 			{"!33702", "player.spell(33702).cooldown = 0"},
 			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-			
-			-- Doomguard / Terrorguard
 			{"!18540", {"!talent(7, 3)", "player.spell(18540).cooldown = 0"}},
 			{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
-			
-			{{	-- Dark Soul: Archimonde's Darkness
+			{{
 				{"!113860", "player.spell(113860).charges = 2"},
 				{"!113860", "player.int.procs > 0"},
 				{"!113860", "target.health <= 10"}
 			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
-			
-			-- Dark Soul
 			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
-			
-			-- Grimoire of Service
 			{"!/run service_pet()", {"talent(5, 2)", "player.spell(111859).cooldown = 0"}}
 		}, {(function() return fetch('miraAffConfig', 'cd_bosses_only') end), "target.boss"}},
 		
 		{{	-- Any target
-			-- Trinkets
 			{"#trinket1"},
 			{"#trinket2"},
-			
-			-- Racials
 			{"!26297", "player.spell(26297).cooldown = 0"},
 			{"!33702", "player.spell(33702).cooldown = 0"},
 			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-			
-			-- Doomguard / Terrorguard
 			{"!18540", {"!talent(7, 3)", "player.spell(18540).cooldown = 0"}},
 			{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
-			
-			{{	-- Dark Soul: Archimonde's Darkness
+			{{
 				{"!113860", "player.spell(113860).charges = 2"},
 				{"!113860", "player.int.procs > 0"},
 				{"!113860", "target.health <= 10"}
 			}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
-			
-			-- Dark Soul
 			{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
-			
-			-- Grimoire of Service
 			{"!/run service_pet()", {"talent(5, 2)", "player.spell(111859).cooldown = 0"}}
 		}, (function() return (not fetch('miraAffConfig', 'cd_bosses_only') and true or false) end)},
 	}, "modifier.cooldowns"},
@@ -191,7 +171,7 @@ local combatRotation = {
 	
 	-- Talents --
 	{{
-		{"!108359", {	-- Dark Regeneration
+		{"!108359", {
 			"talent(1, 1)",
 			(function() return dynamicEval("player.health <= " .. fetch('miraAffConfig', 'darkregen_hp_spin')) end),
 			"player.spell(108359).cooldown = 0",
@@ -199,7 +179,7 @@ local combatRotation = {
 		}}
 	}, (function() return fetch('miraAffConfig', 'darkregen_hp_check') end)},
 	{{
-		{"6789", {		-- Mortal Coil
+		{"6789", {
 			"talent(2, 2)",
 			(function() return dynamicEval("player.health <= " .. fetch('miraAffConfig', 'mortal_coil_spin')) end),
 			"player.spell(6789).cooldown = 0"
@@ -211,7 +191,7 @@ local combatRotation = {
 		(function() return fetch('miraAffConfig', 'burning_rush_check') end),
 		(function() return dynamicEval("player.health > " .. fetch('miraAffConfig', 'burning_rush_spin')) end)
 	}},
-	{"!108503", {	-- Grimoire of Sacrifice
+	{"!108503", {
 		"talent(5, 3)",
 		"!player.buff(108503)",
 		"player.spell(108503).cooldown = 0",
@@ -219,7 +199,7 @@ local combatRotation = {
 		"pet.alive"
 	}},
 	{"!137587", {"talent(6, 2)", "player.moving", "player.spell(137587).cooldown = 0"}},
-	{"!152108", {	-- Cataclysm
+	{"!152108", {
 		"talent(7, 2)",
 		"!player.casting(152108)",
 		"player.spell(152108).cooldown = 0",
@@ -231,14 +211,14 @@ local combatRotation = {
 		{{	-- Firehack Support
 			{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
 			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"!74434", {	-- Soulburn
+			{"!74434", {
 				"!talent(7, 1)",
 				"!player.buff(74434)",
 				"!target.debuff(27243)",
 				"player.soulshards > 2",
 				"!target.debuff(114790)"
 			}},
-			{"!114790", {	-- Soulburn: Seed of Corruption
+			{"!114790", {
 				"!talent(7, 1)",
 				"!player.moving",
 				"player.buff(74434)",
@@ -256,14 +236,14 @@ local combatRotation = {
 		{{	-- Non-Firehack Support
 			{"!108508", {"talent(6, 3)", "player.spell(108508).cooldown = 0"}},
 			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"!74434", {	-- Soulburn
+			{"!74434", {
 				"!talent(7, 1)",
 				"!player.buff(74434)",
 				"!target.debuff(27243)",
 				"player.soulshards > 2",
 				"!target.debuff(114790)"
 			}},
-			{"!114790", {	-- Soulburn: Seed of Corruption
+			{"!114790", {
 				"!talent(7, 1)",
 				"!player.moving",
 				"player.buff(74434)",
@@ -278,32 +258,18 @@ local combatRotation = {
 	}, "toggle.aoe"},
 	
 	
-	{{	-- Multi-dotting --
-		-- Agony
-		{"!980", {"!mouseover.debuff(980)", "!player.casting(48181)"}, "mouseover"},
+	-- Mouseover multidotting --
+	{{
+		
 		{"!980", {"mouseover.debuff(980).duration < 6", "!player.casting(48181)"}, "mouseover"},
-		-- Unstable Affliction
-		{"!30108", {
-			"!mouseover.debuff(30108)",
-			"!player.casting(48181)",
-			"!player.moving",
-			"!modifier.last(30108)"
-		}, "mouseover"},
-		{"!30108", {
-			"mouseover.debuff(30108).duration < 6",
-			"!player.casting(48181)",
-			"!player.moving",
-			"!modifier.last(30108)"
-		}, "mouseover"},
-		-- Corruption
-		{"!172", {"!mouseover.debuff(146739)", "!player.casting(48181)"}, "mouseover"},
+		{"!30108", {"mouseover.debuff(30108).duration < 6", "!player.casting(48181)", "!player.moving", "!modifier.last(30108)"}, "mouseover"},
 		{"!172", {"mouseover.debuff(146739).duration < 6", "!player.casting(48181)"}, "mouseover"}
 	}, "modifier.multitarget"},
 	
 	
 	-- Single Target Rotation --
 	{{	-- Firehack Support
-		{{	-- Attempt proper Haunt usage and shard pooling
+		{{
 			{{
 				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
@@ -323,11 +289,10 @@ local combatRotation = {
 				if not fetch('miraAffConfig', 'haunt_boss') then return true end
 			end)
 		}},
-		
-		{{	-- Proper Soulburn usage when talented Soulburn: Haunt
+		{{
 			{"!74434", "!player.buff(157698)"},
 			{"!74434", "player.soulshards = 4"},
-			{"!74434", "player.buff(157698).duration < 3"}
+			{"!74434", "player.buff(157698).duration < 5"}
 		}, {
 			"talent(7, 1)", "!player.buff(74434)", "!player.moving", "player.soulshards >= 2",
 			(function()
@@ -335,9 +300,8 @@ local combatRotation = {
 				if not fetch('miraAffConfig', 'haunt_boss') then return true end
 			end)
 		}},
-		
-		{{	-- Soulburn: Haunt (Talent)
-			{"!48181", {"player.buff(74434)", "player.buff(157698).duration < 3"}},
+		{{
+			{"!48181", {"player.buff(74434)", "player.buff(157698).duration < 5"}},
 			{"!48181", "player.buff(74434)"}
 		}, {
 			"talent(7, 1)", "!modifier.last(48181)", "player.soulshards > 0", "!player.moving",
@@ -347,23 +311,10 @@ local combatRotation = {
 			end)
 		}},
 		
-		{{	-- Agony
-			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
-			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "!target.debuff(980)"}},
-			{"!980", {"!talent(7, 2)", "target.debuff(980).duration < 6"}},
-			{"!980", {"!talent(7, 2)", "!target.debuff(980)"}}
-		}, "target.health > 1 "},
-		
-		{{	-- Unstable Affliction
-			{"30108", "target.debuff(30108).duration < 6"},
-			{"30108", "!target.debuff(30108)"}
-		}, {"!player.moving", "target.health > 1", "!modifier.last(30108)"}},
-		
-		{{	-- Corruption
-			{"!172", "target.debuff(146739).duration < 6"},
-			{"!172", "!target.debuff(146739)"}
-		}, "target.health > 1"},
-		
+		{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
+		{"!980", {"!talent(7, 2)", "target.debuff(980).duration < 6"}},
+		{"30108", {"target.debuff(30108).duration < 6", "!player.moving", "!modifier.last(30108)"}},
+		{"!172", "target.debuff(146739).duration < 6"},
 		{"1454", "player.mana < 40"},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"}
@@ -376,9 +327,8 @@ local combatRotation = {
 			else return true end
 		end)
 	}},
-	
 	{{	-- Non-Firehack Support
-		{{	-- Attempt proper Haunt usage and shard pooling
+		{{
 			{{
 				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
@@ -398,8 +348,7 @@ local combatRotation = {
 				if not fetch('miraAffConfig', 'haunt_boss') then return true end
 			end)
 		}},
-		
-		{{	-- Proper Soulburn usage when talented Soulburn: Haunt
+		{{
 			{"!74434", "!player.buff(157698)"},
 			{"!74434", "player.soulshards = 4"},
 			{"!74434", "player.buff(157698).duration < 3"}
@@ -410,8 +359,7 @@ local combatRotation = {
 				if not fetch('miraAffConfig', 'haunt_boss') then return true end
 			end)
 		}},
-		
-		{{	-- Soulburn: Haunt (Talent)
+		{{
 			{"!48181", {"player.buff(74434)", "player.buff(157698).duration < 3"}},
 			{"!48181", "player.buff(74434)"}
 		}, {
@@ -421,24 +369,16 @@ local combatRotation = {
 				if not fetch('miraAffConfig', 'haunt_boss') then return true end
 			end)
 		}},
-		
-		{{	-- Agony
-			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
-			{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "!target.debuff(980)"}},
-			{"!980", {"!talent(7, 2)", "target.debuff(980).duration < 6"}},
-			{"!980", {"!talent(7, 2)", "!target.debuff(980)"}}
-		}, "target.health > 1 "},
-		
-		{{	-- Unstable Affliction
-			{"30108", "target.debuff(30108).duration < 6"},
-			{"30108", "!target.debuff(30108)"}
-		}, {"!player.moving", "target.health > 1", "!modifier.last(30108)"}},
-		
-		{{	-- Corruption
-			{"!172", "target.debuff(146739).duration < 6"},
-			{"!172", "!target.debuff(146739)"}
-		}, "target.health > 1"},
-		
+
+		{"!980", {"talent(7, 2)", "player.spell(152108).cooldown > 20", "target.debuff(980).duration < 6"}},
+		{"!980", {"!talent(7, 2)", "target.debuff(980).duration < 6"}},
+		{"30108", {"target.debuff(30108).duration < 6", "!player.moving", "!modifier.last(30108)"}},
+		{"!172", "target.debuff(146739).duration < 6"},
+		{{
+			{"980", "@miLib.dot(980, "..(fetch('miraAffConfig', 'agony_units') or 4)..")"},
+			{"172", "@miLib.dot(172, "..(fetch('miraAffConfig', 'corruption_units') or 4)..")"},
+			{"30108", "@miLib.dot(30108, "..(fetch('miraAffConfig', 'ua_units') or 4)..")"},
+		}, "modifier.multitarget"},
 		{"1454", "player.mana < 40"},
 		{"103103", "!player.moving"},
 		{"1454", "player.health > 40"}
@@ -485,4 +425,4 @@ local beforeCombat = {
 }
 
 -- Register our rotation
-ProbablyEngine.rotation.register_custom(265, "[|cff005522Mirakuru Rotations|r] Affliction", combatRotation, beforeCombat, btn)
+ProbablyEngine.rotation.register_custom(265, "[|cff005522Mirakuru Rotations|r] Affliction Warlock", combatRotation, beforeCombat, btn)

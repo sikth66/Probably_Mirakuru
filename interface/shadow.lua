@@ -1,8 +1,8 @@
 --[[
-	Interface file for Shadow [Mirakuru Profiles]
+	Interface file for Shadow Priest [Mirakuru Profiles]
 	Created by Mirakuru
 ]]
-mirakuru_destru_config = {
+mirakuru_shadow_config = {
 	key = "miraShadowConfig",
 	profiles = true,
 	title = "Shadow Priest",

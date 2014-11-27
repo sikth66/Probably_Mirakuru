@@ -11,6 +11,16 @@ mirakuru_destru_config = {
 	width = 250,
 	height = 450,
 	config = {
+		{type = "spacer"},
+		{
+			type = "texture",texture = "Interface\\AddOns\\Probably_Mirakuru\\interface\\media\\splash.blp",
+			width = 200,
+			height = 100,
+			offset = 90,
+			y = 42,
+			center = true
+		},
+		{type = "spacer"},{type = "rule"},
 		{
 			type = "header",
 			text = "General Settings",
@@ -247,6 +257,7 @@ mirakuru_destru_config = {
 			text = "Dark Regeneration",
 			key = "darkregen_hp",
 			default_spin = 40,
+			width = 50,
 			default_check = true,
 			desc = "Activates after reaching this HP value."
 		},
@@ -273,6 +284,7 @@ mirakuru_destru_config = {
 			text = "Mortal Coil",
 			key = "mortal_coil",
 			default_spin = 85,
+			width = 50,
 			default_check = true,
 			desc = "Use at or under this HP value."
 		},
@@ -281,6 +293,7 @@ mirakuru_destru_config = {
 			text = "Burning Rush",
 			key = "burning_rush",
 			default_spin = 70,
+			width = 50,
 			default_check = true,
 			desc = "Minimum health required for Burning Rush."
 		}

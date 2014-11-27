@@ -97,28 +97,27 @@ mirakuru_aff_config = {
 		},
 		{type = "rule"},
 		{
-			type = "checkspin",
+			type = "spinner",
 			text = "Agony Count",
 			key = "agony_units",
-			default_spin = 4,
+			default = 4,
 			width = 50,
-			default_check = false,
 			desc = "How many units to cast Agony on when multidotting."
 		},
 		{
-			type = "checkspin",
+			type = "spinner",
 			text = "Corruption Count",
 			key = "corruption_units",
-			default_spin = 4,
-			default_check = false,
+			default = 4,
+			width = 50,
 			desc = "How many units to cast Corruption on when multidotting."
 		},
 		{
-			type = "checkspin",
+			type = "spinner",
 			text = "Unstable Affliction Count",
 			key = "ua_units",
-			default_spin = 4,
-			default_check = false,
+			default = 4,
+			width = 50,
 			desc = "How many units to cast Unstable Affliction on when multidotting."
 		},
 		{type = "spacer"},{type = "spacer"},
@@ -221,6 +220,7 @@ mirakuru_aff_config = {
 			text = "Dark Regeneration",
 			key = "darkregen_hp",
 			default_spin = 40,
+			width = 50,
 			default_check = true,
 			desc = "Activates after reaching this HP value."
 		},
@@ -247,6 +247,7 @@ mirakuru_aff_config = {
 			text = "Mortal Coil",
 			key = "mortal_coil",
 			default_spin = 85,
+			width = 50,
 			default_check = true,
 			desc = "Use at or under this HP value."
 		},
@@ -255,6 +256,7 @@ mirakuru_aff_config = {
 			text = "Burning Rush",
 			key = "burning_rush",
 			default_spin = 70,
+			width = 50,
 			default_check = true,
 			desc = "Minimum health required for Burning Rush."
 		}
