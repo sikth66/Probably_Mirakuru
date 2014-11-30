@@ -11,6 +11,16 @@ mirakuru_aff_config = {
 	width = 250,
 	height = 450,
 	config = {
+		{type = "spacer"},
+		{
+			type = "texture",texture = "Interface\\AddOns\\Probably_Mirakuru\\interface\\media\\splash.blp",
+			width = 100,
+			height = 100,
+			offset = 70,
+			y = 40,
+			center = true
+		},
+		{type = "spacer"},{type = "spacer"},{type = "spacer"},
 		{
 			type = "header",
 			text = "General Settings",

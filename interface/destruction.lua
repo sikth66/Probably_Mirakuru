@@ -14,13 +14,13 @@ mirakuru_destru_config = {
 		{type = "spacer"},
 		{
 			type = "texture",texture = "Interface\\AddOns\\Probably_Mirakuru\\interface\\media\\splash.blp",
-			width = 200,
+			width = 100,
 			height = 100,
-			offset = 90,
-			y = 42,
+			offset = 70,
+			y = 40,
 			center = true
 		},
-		{type = "spacer"},{type = "rule"},
+		{type = "spacer"},{type = "spacer"},{type = "spacer"},
 		{
 			type = "header",
 			text = "General Settings",

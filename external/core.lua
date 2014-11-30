@@ -11,14 +11,18 @@ miLib.corrCount = 0
 miLib.immoCount = 0
 miLib.agonyCount = 0
 
--- Glyph of Mind Harvest (Shadow Priest)
-miLib.mindHarvest = nil
+-- Shadow multidotting counters
+miLib.vt = 0
+miLib.swp = 0
+miLib.vent = 0
 
 -- Proc Counters
 miLib.hasIntProcs = 0
 miLib.affAuraProc = 0
+miLib.hasCritProc = 0
 
--- Last Intellect proc timer
+-- Last registered proc timers
+miLib.critTimer = 0
 miLib.intProcTimer = 0
 
 -- Register commands

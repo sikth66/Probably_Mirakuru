@@ -13,7 +13,6 @@ local function dynamicEval(condition, spell)
 	return ProbablyEngine.dsl.parse(condition, spell or '')
 end
 
-
 -- Pet Functions
 function destru_pet()
 	local pet = tonumber(fetch('miraDestruConfig', 'summon_pet'))
@@ -36,7 +35,6 @@ function destru_service_pet()
 	if ProbablyEngine.dsl.parse("talent(5, 2)") then CastSpellByName(spellName) end
 end
 
-
 -- Buttons
 local btn = function()
 	ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\ability_warlock_fireandbrimstone.png', 'Enable AOE', "Enables the AOE rotation within the combat rotation.")	
@@ -47,16 +45,16 @@ local btn = function()
 	miLib.displayFrame(mirakuru_destru_config)
 end
 
-
 -- Combat Rotation
 local combatRotation = {
-	{{	-- Auto target enemy when Enabled
+	-- Auto target enemy when Enabled
+	{{
 		{"/targetenemy [noexists]", "!target.exists"},
 		{"/targetenemy [dead]", {"target.exists", "target.dead"}}
 	}, (function() return fetch('miraDestruConfig', 'auto_target') end)},
 	
-	
-	{{	-- Healing Tonic / Healthstone
+	-- Healing Tonic / Healthstone
+	{{
 		{{
 			{"#5512"},
 			{"#109223"}
@@ -71,10 +69,11 @@ local combatRotation = {
 		(function() return dynamicEval('player.health <= '..fetch('miraDestruConfig', 'hs_pot_healing_spin')) end)
 	}},
 	
-	
-	-- Buffs --
+	-- Dark Intent
 	{"!109773", "!player.buffs.multistrike"},
-	{"!109773", "!player.buffs.spellpower"},	
+	{"!109773", "!player.buffs.spellpower"},
+	
+	-- Burning Rush
 	{{
 		{"/cancelaura "..GetSpellInfo(111400), {"!player.moving", "player.buff(111400)"}},
 		{"/cancelaura "..GetSpellInfo(111400), {
@@ -83,8 +82,8 @@ local combatRotation = {
 		}}
 	}, (function() return fetch('miraDestruConfig', 'burning_rush_check') end)},
 	
-	
-	{{	-- Summon Pet
+	-- Summon Pet
+	{{
 		{"!120451", {
 			"!pet.alive",
 			"!pet.exists",
@@ -105,56 +104,39 @@ local combatRotation = {
 		}}
 	}},
 	
+	-- Cooldown Management --
+	{{
+		{"#trinket1"},
+		{"#trinket2"},
+		{"!26297", {"player.spell(26297).cooldown = 0", "!player.hashero"}},
+		{"!33702", "player.spell(33702).cooldown = 0"},
+		{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+		{"!18540", {"!talent(7, 3)", "player.spell(18540).cooldown = 0"}},
+		{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
+		{{
+			{"!113858", "player.spell(113858).charges = 2"},
+			{"!113858", "int.procs > 0"},
+			{"!113858", "target.health <= 10"}
+		}, {
+			"talent(6, 1)", "player.spell(113858).charges > 0",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
+		}},
+		{"!113858", {
+			"!talent(6, 1)", "player.spell(113858).cooldown = 0",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
+		}},
+		{"/run destru_service_pet()", "talent(5, 2)"}
+	}, {
+		"modifier.cooldowns",
+		(function()
+			if fetch('miraDestruConfig', 'cd_bosses_only') then
+				if ProbablyEngine.condition["boss"]("target") then return true else return false end
+			else return true end
+		end)
+	}},
 	
-	{{	-- Cooldown Management --
-		{{	-- Boss Only
-			{"#trinket1"},
-			{"#trinket2"},
-			{"!26297", "player.spell(26297).cooldown = 0"},
-			{"!33702", "player.spell(33702).cooldown = 0"},
-			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-			{"!18540", {"!talent(7, 3)", "player.spell(18540).cooldown = 0"}},
-			{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
-			{{
-				{"!113858", "player.spell(113858).charges = 2"},
-				{"!113858", "player.int.procs > 0"},
-				{"!113858", "target.health <= 10"}
-			}, {
-				"talent(6, 1)", "player.spell(113858).charges > 0",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
-			}},
-			{"!113858", {
-				"!talent(6, 1)", "player.spell(113858).cooldown = 0",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
-			}},
-			{"/run destru_service_pet()", "talent(5, 2)"}
-		}, {(function() return fetch('miraDestruConfig', 'cd_bosses_only') end), "target.boss"}},
-		{{	-- Any target
-			{"#trinket1"},
-			{"#trinket2"},
-			{"!26297", "player.spell(26297).cooldown = 0"},
-			{"!33702", "player.spell(33702).cooldown = 0"},
-			{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
-			{"!18540", {"!talent(7, 3)", "player.spell(18540).cooldown = 0"}},
-			{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
-			{{
-				{"!113858", "player.spell(113858).charges = 2"},
-				{"!113858", "player.int.procs > 0"},
-				{"!113858", "target.health <= 10"}
-			}, {
-				"talent(6, 1)", "player.spell(113858).charges > 0",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
-			}},
-			{"!113858", {
-				"!talent(6, 1)", "player.spell(113858).cooldown = 0",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_darksoul')) end)
-			}},
-			{"/run destru_service_pet()", "talent(5, 2)"}
-		}, (function() return (not fetch('miraDestruConfig', 'cd_bosses_only') and true or false) end)}
-	}, "modifier.cooldowns"},
-	
-	
-	{{	-- Command Demon --
+	-- Command Demon --
+	{{
 		{"/petattack", {"timeout(petAttack, 1)", "pet.exists", "pet.alive"}},
 		{"119913", "player.pet(115770).spell", "target.ground"},
 		{"119909", "player.pet(6360).spell", "target.ground"},
@@ -165,7 +147,6 @@ local combatRotation = {
 		{"119905", {"player.pet(115276).spell", "player.health < 80"}},
 		{"119905", {"player.pet(89808).spell", "player.health < 80"}}
 	}, {(function() return fetch('miraDestruConfig', 'command_demon') end), "pet.exists", "pet.alive"}},
-	
 	
 	-- Talents --
 	{{
@@ -198,88 +179,107 @@ local combatRotation = {
 	}},
 	{"!137587", {"talent(6, 2)", "player.moving", "player.spell(137587).cooldown = 0"}},
 	
-	
 	-- Rain of Fire hotkey --
 	{"104232", "modifier.lalt", "mouseover.ground"},
 	
-	
 	-- AoE Rotation --
 	{{
-		{{	-- Firehack
-			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"108683", "!player.buff(108683)"},
-			{"108686", {"!target.debuff(157736)", "!player.moving"}},
-			{"157701", {
-				"talent(7, 1)",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
-			}},
-			{"108685", "player.spell(108685).charges > 0"},
-			{"114654", "!player.moving"}
-		}, {
-			"player.firehack",
-			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) end),
-			(function() return dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) end)
+		{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0", "!player.moving"}, "target.ground"},
+		{"108683", "!player.buff(108683)"},
+		{"108686", {"!target.debuff(157736)", "!player.moving"}},
+		{"157701", {
+			"talent(7, 1)",
+			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
 		}},
-		{{	-- Non-Firehack
-			{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0"}, "target.ground"},
-			{"108683", "!player.buff(108683)"},
-			{"108686", {"!target.debuff(157736)", "!player.moving"}},
-			{"157701", {
-				"talent(7, 1)",
-				(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'cb_fnb_embers')) end)
-			}},
-			{"108685", "player.spell(108685).charges > 0"},
-			{"114654", "!player.moving"}
-		}, {"!player.firehack", "modifier.control",
-			(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) end)
-		}}
-	}, "toggle.aoe"},
+		{"108685", "player.spell(108685).charges > 0"},
+		{"114654", "!player.moving"}
+	}, {
+		"toggle.aoe",
+		(function()
+			if FireHack then
+				if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then
+					if dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) then return true else return false end
+				else return false end
+			else
+				if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then
+					if ProbablyEngine.condition["modifier.control"]() then return true else return false end
+				else return false end
+			end
+		end)
+	}},
 	
 	
 	-- Single Target Rotation --
-	{{	-- Firehack
+	{{
+		-- Fire and Brimstone bad
 		{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
-		{{{"80240", "@miLib.havoc()"}}, "modifier.multitarget"},
+		
+		-- Yay, Havoc
+		{{{"!80240", "@miLib.manager(80240)"}}, "modifier.multitarget"},
+		
+		-- Ember Tap, jk, Shadowburn
 		{{
-			{{{"!17877", "@miLib.snipe_fh(17877, 20)"}}, "modifier.multitarget"},
+			{{{"!17877", "@miLib.manager(17877, 0, 20)"}}, "modifier.multitarget"},
 			{"!17877", "player.embers >= 25"},
 			{"!17877", "player.buff(113858).duration >= 1"},
 			{"!17877", "target.ttd < 10"}
 		}, {"target.health <= 20", "player.embers >= 10"}},
+		
+		-- Emergency Immolate
 		{{
-			{{
-				{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 6"}},
-				{"348", "!talent(7, 2)"}
-			}, {"target.debuff(157736).duration < 1.5", "!player.buff(113858)"}},
-			{"348", {"!talent(7, 2)", "!target.debuff(157736)"}},
-			{"348", {"talent(7, 2)", "!target.debuff(157736)", "player.spell(152108).cooldown > 6"}}
-		}, {"!player.moving", "!modifier.last(348)",
+			{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 1.5"}},
+			{"348", "!talent(7, 2)"}
+		}, {
+			"!player.moving",
+			"!modifier.last(348)",
+			"target.debuff(157736)",
+			"target.debuff(157736).duration < 1.5",
 			(function()
 				if dynamicEval("player.buff(80240).count >= 3") then
 					if dynamicEval("player.embers >= 10") then return false else return true end
 				else return true end
 			end)
 		}},
-		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
+		
+		-- Chaos Bolt, close to capping embers
+		{"116858", {"player.time < 5", "player.embers > 35"}},
+		
+		-- Cleaving time
 		{{
 			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
 			{"!116858", {
 				"target.health > 20", "!player.moving", "!player.casting(116858)", "player.buff(80240).count >= 3",
-				(function() return dynamicEval("player.buff(80240).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)
+				(function() return dynamicEval("player.buff(80240).duration >= "..miLib.round((2.5/((GetHaste("player")/100)+1)),2)) end)
 			}}
 		}, "player.embers >= 10"},
-		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0"}, "target.ground"},
+		
+		-- Cataclysm
+		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0", "!player.moving"}, "target.ground"},
+		
+		-- Havoc is bad for you
 		{{
+			-- Conflagrate
 			{"17962", {"player.spell(17962).charges = 2", "target.debuff(157736)"}},
+			
+			-- Chaos Bolt
 			{{
-				{"116858", "player.int.procs > 0"},
-				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
+				{"116858", "int.procs > 0"},
+				{"116858", "crit.procs > 0"},
+				{"116858", {(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end), "player.spell(80240).cooldown > 4"}},
 				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
 				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
-			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving", "!player.casting(116858)"}},
+			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving"}},
+			
+			-- Immolate
 			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
-			{{{"348", "@miLib.immolate()"}}, "modifier.multitarget"},
+			
+			-- Immolate multidotting
+			{{{"348", "@miLib.manager(348, 4)"}}, {"modifier.multitarget", "!player.moving"}},
+			
+			-- Conflagrate
 			{"17962", "player.spell(17962).charges > 0"},
+			
+			-- Incinerlol
 			{"29722", "!player.moving"}
 		}, {
 			(function()
@@ -288,82 +288,28 @@ local combatRotation = {
 				else return true end
 			end)
 		}}
-	}, {"player.firehack",
+	},
 		(function()
-			local aoe = ProbablyEngine.config.read("button_states").aoe
-			if aoe then
-				if dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) then
-					if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then return false else return true end
+			if FireHack then
+				if ProbablyEngine.config.read('button_states', 'aoe', false) then
+					if dynamicEval("target.area(10).enemies >= "..fetch('miraDestruConfig', 'aoe_units')) then
+						if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then return false else return true end
+					else return true end
 				else return true end
-			else return true end
+			else
+				if ProbablyEngine.config.read('button_states', 'aoe', false) then
+					if ProbablyEngine.condition["modifier.control"]() then
+						if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then return false else return true end
+					else return true end
+				else return true end
+			end
 		end)
-	}},
-	{{	-- Non-Firehack
-		{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
-		{{
-			{{{"!17877", "@miLib.snipe(17877, 20)"}}, "modifier.multitarget"},
-			{"!17877", "player.embers >= 25"},
-			{"!17877", "player.buff(113858).duration >= 1"},
-			{"!17877", "target.ttd < 10"}
-		}, {"target.health <= 20", "player.embers >= 10"}},
-		{{
-			{{
-				{"348", {"talent(7, 2)", "player.spell(152108).cooldown > 6"}},
-				{"348", "!talent(7, 2)"}
-			}, {"target.debuff(157736).duration < 1.5", "!player.buff(113858)"}},
-			{"348", {"!talent(7, 2)", "!target.debuff(157736)"}},
-			{"348", {"talent(7, 2)", "!target.debuff(157736)", "player.spell(152108).cooldown > 6"}}
-		}, {"!player.moving", "!modifier.last(348)",
-			(function()
-				if dynamicEval("player.buff(80240).count >= 3") then
-					if dynamicEval("player.embers >= 10") then return false else return true end
-				else return true end
-			end)
-		}},
-		{"116858", {"player.time < 5", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)}},
-		{{
-			{"!17877", {"target.health <= 20", "player.buff(80240)"}},
-			{"!116858", {
-				"target.health > 20", "!player.moving", "!player.casting(116858)", "player.buff(80240).count >= 3",
-				(function() return dynamicEval("player.buff(80240).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)
-			}}
-		}, "player.embers >= 10"},
-		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0"}, "target.ground"},
-		{{
-			{"17962", {"player.spell(17962).charges = 2", "target.debuff(157736)"}},
-			{{
-				{"116858", "player.int.procs > 0"},
-				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
-				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
-				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
-			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving", "!player.casting(116858)"}},
-			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
-			{{{"348", "@miLib.dot(348, 4)"}}, "modifier.multitarget"},
-			{"17962", "player.spell(17962).charges > 0"},
-			{"29722", "!player.moving"}
-		}, {
-			(function()
-				if dynamicEval("player.buff(80240).count >= 3") then
-					if dynamicEval("player.embers >= 10") then return false else return true end
-				else return true end
-			end)
-		}}
-	}, {"!player.firehack",
-		(function()
-			local aoe = ProbablyEngine.config.read("button_states").aoe
-			if aoe then
-				if dynamicEval("modifier.control") then
-					if dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_fnb')) then return false else return true end
-				else return true end
-			else return true end
-		end)
-	}}
+	}
 }
-
 
 -- Out of Combat
 local beforeCombat = {
-	-- Buffs
+	-- Dark Intent
 	{"109773", "!player.buffs.multistrike"},
 	{"109773", "!player.buffs.spellpower"},
 	
@@ -394,11 +340,11 @@ local beforeCombat = {
 		"player.spell(30283).cooldown = 0"
 	}, "mouseover.ground"},
 	
-	{{	-- Attack anything when Enabled
+	-- Auto combat
+	{{
 		{"/cast "..GetSpellInfo(29722), "target.alive"}
 	}, (function() return fetch('miraDestruConfig', 'force_attack') end)}
 }
-
 
 -- Register our rotation
 ProbablyEngine.rotation.register_custom(267, "[|cff005522Mirakuru Rotations|r] Destruction Warlock", combatRotation, beforeCombat, btn)

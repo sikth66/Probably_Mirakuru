@@ -22,328 +22,572 @@ end
 
 -- Combat Rotation
 local combatRotation = {
+	-- Auto target enemy when Enabled
+	{{
+		{"/targetenemy [noexists]", "!target.exists"},
+		{"/targetenemy [dead]", {"target.exists", "target.dead"}}
+	}, (function() return fetch('miraShadowConfig', 'auto_target') end)},
+	
+	-- Healing Tonic / Healthstone
+	{{
+		{"#109223"},
+		{"#5512"}
+	}, {
+		(function() return fetch('miraShadowConfig', 'stone_pot_check') end),
+		(function() return dynamicEval('player.health <= '..fetch('miraShadowConfig', 'stone_pot_spin')) end)
+	}},
+	
+	-- Feathers / Power Word: Shield
+	{{
+		{"17", {"talent(2, 1)", "!player.debuff(6788)"}},
+		{"121536", {"talent(2, 2)", "player.spell(121536).charges > 1", "player.buff(121557).duration < 0.2", "player.moving"}, "player.ground"}
+	}, (function() return fetch('miraShadowConfig', 'speed_increase') end)},
+	
+	-- Cooldowns --
+	{{
+		{"#trinket1"},
+		{"#trinket2"},
+		{"!26297", {"player.spell(26297).cooldown = 0", "!player.hashero"}},
+		{"!33702", "player.spell(33702).cooldown = 0"},
+		{"!28730", {"player.mana <= 90", "player.spell(28730).cooldown = 0"}},
+		{"!132604", {"talent(3, 2)", "player.spell(132604).cooldown = 0"}},
+		{"!132603", {"!talent(3, 2)", "player.spell(132603).cooldown = 0"}}
+	}, {
+		"modifier.cooldowns",
+		(function()
+			if fetch('miraShadowConfig', 'cd_bosses_only') then
+				if ProbablyEngine.condition["boss"]("target") then return true else return false end
+			else return true end
+		end)
+	}},
+	
 	-- Mouseover Multidotting --
 	{{
 		{"589", "mouseover.debuff(589).duration <= 6", "mouseover"},
-		{"34914", {"mouseover.debuff(34914).duration <= 6", "!player.moving"}, "mouseover"},
-	}, "modifier.multitarget"},
+		{"34914", {"mouseover.debuff(34914).duration <= 6", "!player.moving"}, "mouseover"}
+	}, {"modifier.multitarget", "!player.target(mouseover)", "mouseover.enemy(player)"}},
 	
-	{{	-- Clarity of Power
-		{{	-- Clarity of Power with Insanity
-			{{	-- Dotweaving
-				{{	-- Devouring Plague
-					{"!2944", {"target.debuff(34914)", "target.debuff(589)", "player.shadoworbs >= 5"}},
-					{"!2944", {"player.buff(167254)", "player.buff(167254).duration <= 1.5"}},
-					{"!2944", {
-						"target.debuff(34914)",
-						"target.debuff(589)",
-						"!player.buff(132573)",
-						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.4*(1.5/((100+GetHaste("player"))/100))),2)) end)
-					}}
-				}},
-				{{	-- Shadow Word: Death
-					{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
-					-- Shadow Word: Death sniping and glyph support missing
-				}},
-				-- Mind Harvest needed
-				{"!8092", {"!player.glyph(162532)", "player.spell(8092).cooldown = 0", "player.shadoworbs <= 4"}},
-				{{	-- Shadow Word: Pain
-					{"589", {
-						"player.shadoworbs = 4",
-						"player.buff(165628)",
-						"!target.debuff(589)",
-						"!target.debuff(158831)",
-						(function() return dynamicEval("player.spell(8092).cooldown < "..miLib.round((1.2*(1.5/((100+GetHaste("player"))/100))),2)) end),
-						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.2*(1.5/((100+GetHaste("player"))/100))),2)) end)
-					}},
-					{"589", {"player.shadoworbs = 5", "!target.debuff(158831)", "!target.debuff(589)"}},
-					{"589", "player.moving"}
-				}},
-				{"34914", {"player.shadoworbs = 5", "!target.debuff(158831)", "!target.debuff(34914)", "!player.moving", "!modifier.last(34914)"}},
-				{"!129197", {
-					"!player.moving",
-					"player.buff(132573)",
-					"timeout(insanity, 1)",
-					"!modifier.last(129197)",
-					"!player.buff(132573).duration > 0.35",
-					(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-				}},
-				{"129197", {"!player.moving", "player.buff(132573)"}},
-				{"589", {
-					"player.shadoworbs >= 2",
-					"target.debuff(589).duration >= 6",
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-					"target.debuff(34914)",
-					"player.hashero",
-					"!player.buff(165628)"
-				}},
-				{"34914", {
-					"!player.moving",
-					"!modifier.last(34914)",
-					"player.shadoworbs >= 2",
-					"target.debuff(34914).duration >= 5",
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-					"player.hashero",
-					"!player.buff(165628)"
-				}},
-				{"120644", {
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-					"talent(6, 3)",
-					"target.distance <= 30",
-					"target.distance >= 17"
-				}},
-				{"122121", {
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-					"talent(6, 2)",
-					"target.distance <= 24"
-				}},
-				{"127632", {
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-					"talent(6, 1)",
-					"target.distance >= 11",
-					"target.distance <= 39"
-				}},
-				--[[
-				{{	-- multidotting
-					--actions.cop_dotweave+=/shadow_word_pain,if=primary_target=0&(!ticking|remains<=18*0.3),cycle_targets=1,max_cycle_targets=5
-					--actions.cop_dotweave+=/vampiric_touch,if=primary_target=0&(!ticking|remains<=15*0.3),cycle_targets=1,max_cycle_targets=5
-				}}]]
-				{{	-- Mind Spike
-					{"73510", {
-						(function() return dynamicEval("player.buff(132573).duration <= "..miLib.round((1.5/((100+GetHaste("player"))/100)),2)) end),
-						"player.hashero",
-						"!target.debuff(589)",
-						"!target.debuff(34914)"
-					}},
-					{{
-						{"73510", {"target.debuff(589)", "!target.debuff(34914)"}},
-						{"73510", {"!target.debuff(589)", "target.debuff(34914)"}}
-					}, {
-						"!player.moving",
-						"player.shadoworbs <= 2",
-						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-					}}
-				}},
-				{"15407", {
-					"!player.moving",
-					"target.debuff(589)",
-					"target.debuff(34914)",
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.9*(1.5/((100+GetHaste("player"))/100))),2)) end)
-				}},
-				{"73510", {
-					"!player.moving",
-					"!target.debuff(158831)",
-					(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.4*(1.5/((100+GetHaste("player"))/100))),2)) end)
-				}}
-			}, "target.health > 20"},
-			
-			{{	-- COP Execute (Lite)
-				{"!2944", "player.shadoworbs = 5"},
-				-- Mind Harvest support needed
-				{"!8092", {"!player.glyph(162532)", "player.spell(8092).cooldown = 0"}},
-				{{	-- Shadow Word: Death
-					{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
-					-- Shadow Word: Death sniping and glyph support missing
-				}},
-				{{
-					{"!2944", (function() return dynamicEval("player.spell(8092).cooldown < "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)},
-					{"!2944", {
-						"target.health < 20",
-						(function() return dynamicEval("player.spell(32379).cooldown < "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)
-					}}
-				}, "player.shadoworbs >= 3"},
-				{"!129197", {
-					"!player.moving",
-					"player.buff(132573)",
-					"timeout(insanity, 1)",
-					"!modifier.last(129197)",
-					"!player.buff(132573).duration > 0.35",
-					(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-				}},
-				{"129197", {"!player.moving", "player.buff(132573)"}},
-				{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
-				{"122121", {"talent(6, 2)", "target.distance <= 24"}},
-				{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}},
-				--[[
-				{{	-- multidotting
-					actions.cop_mfi+=/shadow_word_pain,if=remains<(15*0.3)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-					actions.cop_mfi+=/vampiric_touch,if=remains<(18*0.3+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-				}}]]
-				{"73510", "!player.moving"},
-				{"589", "player.moving"}
-			}, "target.health <= 20"}
-		}, "talent(3, 3)"},
-		
-		{{	-- Regular Clarity of Power combat
-			{{
-				{"!2944", (function() return dynamicEval("player.spell(8092).cooldown <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)},
-				{"!2944", {
-					"target.health < 20",
-					(function() return dynamicEval("player.spell(32379).cooldown <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)
-				}}
-			}, "player.shadoworbs >= 3"},
-			-- Mind Harvest needed
-			{"!8092", {"!player.glyph(162532)", "player.spell(8092).cooldown = 0"}},
-			{{	-- Shadow Word: Death
-				{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
-				-- Shadow Word: Death sniping and glyph support missing
-			}},
-			{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
-			{"122121", {"talent(6, 2)", "target.distance <= 24"}},
-			{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}},
-			--[[
-			{{	-- Multitargeting
-				actions.cop+=/shadow_word_pain,if=miss_react&!ticking&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-				actions.cop+=/vampiric_touch,if=remains<cast_time&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-			}}]]
-			{"73510", "player.buff(87160)"},
-			{"15407", {"!player.moving", "target.debuff(158831)"}},
-			{"73510", {"!player.moving", "!target.debuff(158831)"}},
-			{"589", "player.moving"}
-		}, "!talent(3, 3)"}
-	}, "talent(7, 1)"},
-	
-	{{	-- Void Entropy
-		{"155361", {"target.ttd > 60", "player.shadoworbs >= 3", "!target.debuff(155361)"}},
-		
-		-- Void Entropy multitargeting coming here
-		
-		{{	-- Devouring Plague
-			{"!2944", {
-				"target.debuff(155361)",
-				(function() return dynamicEval("target.debuff(155361).duration <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*2),2)) end)
-			}},
-			{"!2944", {"target.debuff(155361)", "target.debuff(155361).duration < 10", "player.shadoworbs = 5"}},
-			{"!2944", {"target.debuff(155361)", "target.debuff(155361).duration < 20", "player.shadoworbs = 5"}},
-			{"!2944", {"target.debuff(155361)", "player.shadoworbs = 5"}}
-		}, {"player.shadoworbs >= 3", "!player.casting(155361)"}},
-		
-		{"!8092", {"talent(5, 3)", "player.buff(124430)", "player.spell(8092).cooldown = 0"}},
-		-- Glyph of Mind Harvest support coming here
-		{"!8092", {
-			"!player.moving",
-			"!player.glyph(162532)",
-			"player.shadoworbs <= 4",
-			"player.spell(8092).cooldown = 0",
-		}},
-		
-		{{	-- Shadow Word: Death
-			{"!32379", "target.health < 20"},
-			-- Shadow Word: Death sniping and glyph support missing
-		}, {"player.spell(32379).cooldown = 0", "player.shadoworbs <= 4"}},
-		
-		{"589", {
-			"player.shadoworbs = 4",
-			"target.debuff(589)",
-			"player.buff(165628)",
-			"target.debuff(589).duration < 9",
-			"player.spell(8092).cooldown < 1.2",
-			(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.2*(1.5/((100+GetHaste("player"))/100))),2)) end)
-		}},
-		
-		-- Insanity
-		{"!129197", {
-			"talent(3, 3)",
-			"!player.moving",
-			"player.buff(132573)",
-			"timeout(insanity, 1)",
-			"!modifier.last(129197)",
-			(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-			(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-		}},
-		{"129197", {
-			"talent(3, 3)",
-			"!player.moving",
-			"player.buff(132573)",
-			(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-		}},
-		
-		-- Surge of Darkness
-		{"73510", {"talent(3, 1)", "player.buff(87160).count = 3"}},
-		
-		-- Dotting
-		{"589", "player.moving"},
-		{"589", {"target.debuff(589).duration < 6"}},
-		{"34914", {"!modifier.last(34914)", "target.debuff(34914).duration < 5.25"}},
-		-- Multidotting here
-		
-		{{	-- Level 45 talents
-			{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
-			{"122121", {"talent(6, 2)", "target.distance <= 24"}},
-			{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}}
-		}, (function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)},
-		
-		-- Surge of Darkness procs
-		{"73510", {
-			"talent(3, 1)",
-			"player.buff(87160)",
-			(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-		}},
-		
-		-- Mind Flay
-		{"15407", (function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)}
-	}, "talent(7, 2)"},
+	-- Defensive Cooldowns --
+	{{
+		--{"!586", {"player.glyph(55684)", "incoming.damage"}}
+	}, (function() return fetch('miraShadowConfig', 'fade') end)},
 	
 	{{
-		{"!32379", {"target.health < 20", "player.shadoworbs <= 4"}},
-		{{	-- Shadow Word: Death
-			{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
-			-- Shadow Word: Death sniping and glyph support missing
-		}},
-		-- Mind Harvest needed
-		{{	-- Devouring Plague
-			{"!2944", "player.shadoworbs = 5"},
-			{{
-				{"!2944", "player.spell(8092).cooldown < 1.5"},
-				{"!2944", {"player.spell(8092).cooldown < 1.5", "target.health < 20"}}
-			}, "player.shadoworbs >= 3"}
-		}},
-		
-		{"!8092", {"talent(5, 3)", "player.buff(124430)", "player.spell(8092).cooldown = 0"}},
-		-- Mind Harvest needed
-		{"!8092", {"player.spell(8092).cooldown = 0", "!player.moving"}},
-		
-		-- Insanity
-		{"!129197", {
-			"talent(3, 3)",
-			"!player.moving",
-			"player.buff(132573)",
-			"timeout(insanity, 1)",
-			"!modifier.last(129197)",
-			(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
-			(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
-		}},
-		{"129197", {"talent(3, 3)", "!player.moving", "player.buff(132573)"}},
-		
-		{"589", "target.debuff(589).duration < 6"},
-		{"34914", (function() return dynamicEval("target.debuff(34914).duration < "..miLib.round((15*0.3+(1.5/((100+GetHaste("player"))/100))),2)) end)},
-		-- Multidotting needed
-		
-		{"2944", {"!talent(7, 2)", "player.shadoworbs >= 3", "target.debuff(158831)", "target.debuff(158831).duration < 0.9"}},
-		
-		-- Surge of Darkness
-		{"73510", {"talent(3, 1)", "player.buff(87160).count = 3"}},
-
-		-- Level 45 Talents
-		{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
-		{"122121", {"talent(6, 2)", "target.distance <= 24"}},
-		{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}},
-		
-		-- Surge of Darkness
-		{"73510", {"talent(3, 1)", "player.buff(87160)"}},
-		
+		--{"!47858", {"player.spell(47858).cooldown = 0", "@miLib.bossEvents()"}},
+		{"!47858", {
+			"player.spell(47858).cooldown = 0",
+			(function() return dynamicEval("player.health <= " .. fetch('miraShadowConfig', 'dispersion_spin')) end)
+		}}
+	}, (function() return fetch('miraShadowConfig', 'dispersion_check') end)},
+	
+	-- Void Tendrils
+	{{
+		{"!108920", {"player.spell(108920).cooldown = 0", "target.distance <= 8"}},
 		{{
-			{"589", {"target.debuff(589)", "target.debuff(589).duration <= 9"}},
-			{"34914", {"target.debuff(34914)", "target.debuff(34914).duration <= 9"}}
-		}, {"talent(3, 3)", "player.shadoworbs >= 2"}},
+			{"!108920", {"player.spell(108920).cooldown = 0", "player.area(10).enemies >= 1"}}
+		}, "player.firehack"}
+	}, (function() return fetch('miraShadowConfig', 'tendrils') end)},
+	
+	-- AOE Rotation .. if you can call it AOE --
+	{{
+		{"!589", "@miLib.manager(589)"},
+		{"!589", "!target.debuff(589)"},
+		{"48045", "!player.moving"}
+	}, {
+		"toggle.aoe",
+		(function()
+			if FireHack then
+				if dynamicEval("target.area(10).enemies >= "..fetch('miraShadowConfig', 'msear_units')) then return true else return false end
+			else
+				if ProbablyEngine.condition["modifier.control"]() then return true else return false end
+			end
+		end)
+	}},
+	
+	-- Combat Routine
+	{{
+		-- Clarity of Power
+		{{
+			-- Clarity of Power with Insanity
+			{{
+				-- Dotweaving, over 20% health
+				{{
+					-- Devouring Plague
+					{{
+						{"!2944", {"target.debuff(34914)", "target.debuff(589)", "player.shadoworbs >= 5"}},
+						{"!2944", {"player.buff(167254)", "player.buff(167254).duration <= 1.5"}},
+						{"!2944", {
+							"target.debuff(34914)",
+							"target.debuff(589)",
+							"!player.buff(132573)",
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.4*(1.5/((100+GetHaste("player"))/100))),2)) end)
+						}}
+					}, "player.shadoworbs >= 3"},
+					
+					-- Shadow Word: Death
+					{{
+						{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
+						{{
+							{"!32379", "@miLib.manager(32379, 0, 20)"}
+						}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+						{"129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+					}},
+					
+					-- Mind Blast
+					{"!8092", {"player.spell(8092).cooldown = 0", "player.shadoworbs <= 2", "player.glyph(162532)"}},
+					{"!8092", {"player.spell(8092).cooldown = 0", "player.shadoworbs <= 4"}},
+					
+					-- Shadow Word: Pain
+					{{
+						{"589", {
+							"player.shadoworbs = 4",
+							"player.buff(165628)",
+							"!target.debuff(589)",
+							"!target.debuff(158831)",
+							(function() return dynamicEval("player.spell(8092).cooldown < "..miLib.round((1.2*(1.5/((100+GetHaste("player"))/100))),2)) end),
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.2*(1.5/((100+GetHaste("player"))/100))),2)) end)
+						}},
+						{"589", {"player.shadoworbs = 5", "!target.debuff(158831)", "!target.debuff(589)"}}
+					}},
+					
+					-- Vampiric Touch
+					{"34914", {"player.shadoworbs = 5", "!target.debuff(158831)", "!target.debuff(34914)", "!player.moving", "!modifier.last(34914)"}},
+					
+					-- Mind Flay: Insanity
+					{"!129197", {
+						"!player.moving",
+						"player.buff(132573)",
+						"timeout(insanity, 1)",
+						"player.buff(132573).duration > 0.35",
+						(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+					}},
+					{"129197", {"!player.moving", "player.buff(132573)"}},
+					
+					-- Shadow Word: Pain
+					{"589", {
+						"player.shadoworbs >= 2",
+						"target.debuff(589).duration >= 6",
+						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+						"target.debuff(34914)",
+						"player.hashero",
+						"!player.buff(165628)"
+					}},
+					
+					-- Vampiric Touch
+					{"34914", {
+						"!player.moving",
+						"!modifier.last(34914)",
+						"player.shadoworbs >= 2",
+						"target.debuff(34914).duration >= 5",
+						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+						"player.hashero",
+						"!player.buff(165628)"
+					}},
+					
+					-- Level 90 Talents
+					{{
+						{"120644", {
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+							"talent(6, 3)",
+							"target.distance <= 30",
+							"target.distance >= 17"
+						}},
+						{"122121", {
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+							"talent(6, 2)",
+							"target.distance <= 24"
+						}},
+						{"127632", {
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+							"talent(6, 1)",
+							"target.distance >= 11",
+							"target.distance <= 39"
+						}}
+					}, (function() return fetch('miraShadowConfig', 'l90_talents') end)},
+					
+					-- Multidotting
+					{{
+						{"!589", "@miLib.manager(589, 5)"},
+						{{
+							{"!34914", {"@miLib.manager(34914, 5)"}}
+						}, {"!modifier.last(34914)", "!player.moving"}}
+					}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
+					
+					-- Mind Spike
+					{{
+						{"73510", {
+							"player.buff(132573)",
+							(function() return dynamicEval("player.buff(132573).duration <= "..miLib.round((1.5/((100+GetHaste("player"))/100)),2)) end),
+							"player.hashero",
+							"!target.debuff(589)",
+							"!target.debuff(34914)"
+						}},
+						{{
+							{"73510", {"target.debuff(589)", "!target.debuff(34914)"}},
+							{"73510", {"!target.debuff(589)", "target.debuff(34914)"}}
+						}, {
+							"!player.moving",
+							"player.shadoworbs <= 2",
+							(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+						}}
+					}},
+					
+					-- Mind Flay
+					{"15407", {
+						"!player.moving",
+						"target.debuff(589)",
+						"target.debuff(34914)",
+						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.9*(1.5/((100+GetHaste("player"))/100))),2)) end)
+					}},
+					
+					-- Mind Spike
+					{"73510", {
+						"!player.moving",
+						"!target.debuff(158831)",
+						(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.4*(1.5/((100+GetHaste("player"))/100))),2)) end)
+					}},
+					
+					-- Shadow Word: Pain
+					{"589", "player.moving"}
+				}, "target.health > 20"},
+				
+				-- COP Execute (Lite)
+				{{
+					-- Devouring Plague
+					{"!2944", "player.shadoworbs = 5"},
+					
+					-- Mind Blast
+					{"!8092", "player.spell(8092).cooldown = 0"},
+					
+					-- Shadow Word: Death
+					{{
+						{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
+						{{
+							{"!32379", "@miLib.manager(32379, 0, 20)"}
+						}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+						{"129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+					}},
+					
+					-- Devouring Plague
+					{{
+						{"!2944", (function() return dynamicEval("player.spell(8092).cooldown < "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)},
+						{"!2944", {
+							"target.health < 20",
+							(function() return dynamicEval("player.spell(32379).cooldown < "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)
+						}}
+					}, "player.shadoworbs >= 3"},
+					
+					-- Mind Flay: Insanity
+					{"!129197", {
+						"!player.moving",
+						"player.buff(132573)",
+						"timeout(insanity, 1)",
+						"!modifier.last(129197)",
+						"!player.buff(132573).duration > 0.35",
+						(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+					}},
+					{"129197", {"!player.moving", "player.buff(132573)"}},
+					
+					-- Level 90 Talents
+					{{
+						{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
+						{"122121", {"talent(6, 2)", "target.distance <= 24"}},
+						{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}}
+					}, (function() return fetch('miraShadowConfig', 'l90_talents') end)},
+					
+					-- Multidotting
+					{{
+						{"!589", "@miLib.manager(589, 5)"},
+						{{
+							{"!34914", {"@miLib.manager(34914, 5)"}}
+						}, {"!modifier.last(34914)", "!player.moving"}}
+					}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
+					
+					-- Mind Spike
+					{"73510", "!player.moving"},
+					
+					-- Shadow Word: Pain
+					{"589", "player.moving"}
+				}, "target.health <= 20"}
+			}, "talent(3, 3)"},
+			
+			-- Regular Clarity of Power combat
+			{{
+				-- Devouring Plague
+				{{
+					{"!2944", (function() return dynamicEval("player.spell(8092).cooldown <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)},
+					{"!2944", {
+						"target.health < 20",
+						(function() return dynamicEval("player.spell(32379).cooldown <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*1.0),2)) end)
+					}}
+				}, "player.shadoworbs >= 3"},
+				
+				-- Mind Blast
+				{"!8092", "player.spell(8092).cooldown = 0"},
+				
+				-- Shadow Word: Death
+				{{
+					{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
+					{{
+						{"!32379", "@miLib.manager(32379, 0, 20)"}
+					}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+					{"!129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+				}},
+				
+				-- Level 90 Talents
+				{{
+					{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
+					{"122121", {"talent(6, 2)", "target.distance <= 24"}},
+					{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}}
+				}, (function() return fetch('miraShadowConfig', 'l90_talents') end)},
+				
+				-- Multidotting
+				{{
+					{"!589", "@miLib.manager(589, 5)"},
+					{{
+						{"!34914", {"@miLib.manager(34914, 5)"}}
+					}, {"!modifier.last(34914)", "!player.moving"}}
+				}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
+				
+				-- Mind Spike (Surge of Darkness)
+				{"73510", "player.buff(87160)"},
+				
+				-- Mind Flay during Devouring Plague
+				{"15407", {"!player.moving", "target.debuff(158831)"}},
+				
+				-- Mind Spike without Devouring Plague
+				{"73510", {"!player.moving", "!target.debuff(158831)"}},
+				
+				-- Shadow Word: Pain
+				{"589", "player.moving"}
+			}, "!talent(3, 3)"}
+		}, "talent(7, 1)"},
 		
-		-- Mind Flay
-		{"15407", "player.spell(8092).cooldown > 0.5"}
-	}, {"!talent(7, 1)", "!talent(7, 2)"}}
+		-- Void Entropy rotation
+		{{
+			-- Void Entropy
+			{"!155361", {"target.ttd > 60", "player.shadoworbs >= 3", "!target.debuff(155361)", "!player.casting(155361)", "!player.moving"}},
+			
+			-- Devouring Plague
+			{{
+				{"!2944", {
+					"target.debuff(155361)",
+					(function() return dynamicEval("target.debuff(155361).duration <= "..miLib.round(((1.5/((100+GetHaste("player"))/100))*2),2)) end)
+				}},
+				{"!2944", {"target.debuff(155361)", "target.debuff(155361).duration < 10", "player.shadoworbs = 5"}},
+				{"!2944", {"target.debuff(155361)", "target.debuff(155361).duration < 20", "player.shadoworbs = 5"}},
+				{"!2944", {"target.debuff(155361)", "player.shadoworbs = 5"}}
+			}, {"player.shadoworbs >= 3", "!player.casting(155361)"}},
+			
+			-- Mind Blast
+			{{
+				{"!8092", {"talent(5, 3)", "player.buff(124430)", "player.spell(8092).cooldown = 0"}},
+				{"!8092", {"player.spell(8092).cooldown = 0", "player.shadoworbs <= 2", "player.glyph(162532)", "!player.moving"}},
+				{"!8092", {
+					"!player.moving",
+					"player.shadoworbs <= 4",
+					"player.spell(8092).cooldown = 0",
+				}}
+			}, "!player.casting(155361)"},
+			
+			-- Shadow Word: Death
+			{{
+				{"!32379", {"player.spell(32379).cooldown = 0", "target.health < 20"}},
+				{{
+					{"!32379", "@miLib.manager(32379, 0, 20)"}
+				}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+				{"129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+			}, "player.shadoworbs <= 4"},
+			
+			-- Shadow Word: Pain
+			{"589", {
+				"player.shadoworbs = 4",
+				"target.debuff(589)",
+				"player.buff(165628)",
+				"target.debuff(589).duration < 9",
+				"player.spell(8092).cooldown < 1.2",
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.2*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			
+			-- Mind Flay: Insanity
+			{"!129197", {
+				"talent(3, 3)",
+				"!player.moving",
+				"player.buff(132573)",
+				"timeout(insanity, 1)",
+				"!modifier.last(129197)",
+				(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			{"129197", {
+				"talent(3, 3)",
+				"!player.moving",
+				"player.buff(132573)",
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			
+			-- Mind Spike: Surge of Darkness
+			{"73510", {"talent(3, 1)", "player.buff(87160).count = 3"}},
+			
+			-- Shadow Word: Pain
+			{"589", {"target.debuff(589).duration < 6"}},
+			
+			-- Vampiric Touch
+			{"34914", {"!modifier.last(34914)", "target.debuff(34914).duration < 6", "!player.moving"}},
+			
+			-- Multidotting
+			{{
+				{"!589", "@miLib.manager(589, 5)"},
+				{{
+					{"!34914", {"@miLib.manager(34914, 5)"}}
+				}, {"!modifier.last(34914)", "!player.moving"}}
+			}, "modifier.multitarget"},
+			
+			-- Level 90 Talents
+			{{
+				{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
+				{"122121", {"talent(6, 2)", "target.distance <= 24"}},
+				{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}}
+			}, {
+				(function() return fetch('miraShadowConfig', 'l90_talents') end),
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			
+			-- Mind Spike: Surge of Darkness
+			{"73510", {
+				"talent(3, 1)",
+				"player.buff(87160)",
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			
+			-- Mind Flay
+			{"15407", {"!player.moving",
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)}},
+			
+			-- Movement
+			{"589", "player.moving"}
+		}, "talent(7, 2)"},
+		
+		-- Auspicious Spirits rotation
+		{{
+			-- Shadow Word: Death
+			{{
+				{"!32379", {"target.health < 20", "player.shadoworbs <= 4"}},
+				{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
+				{{
+					{"!32379", "@miLib.manager(32379, 0, 20)"}
+				}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+				{"129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+			}},
+			
+			-- Mind Blast
+			{"!8092", {"player.spell(8092).cooldown = 0", "player.shadoworbs <= 2", "player.glyph(162532)", "!player.moving"}},
+			
+			-- Devouring Plague
+			{{
+				{"!2944", "player.shadoworbs = 5"},
+				{{
+					{"!2944", "player.spell(8092).cooldown < 1.5"},
+					{"!2944", {"player.spell(8092).cooldown < 1.5", "target.health < 20"}}
+				}, "player.shadoworbs >= 3"}
+			}},
+			
+			-- Mind Blast
+			{"!8092", {"talent(5, 3)", "player.buff(124430)", "player.spell(8092).cooldown = 0"}},
+			{"!8092", {"player.spell(8092).cooldown = 0", "player.shadoworbs <= 2", "player.glyph(162532)", "!player.moving"}},
+			{"!8092", {"player.spell(8092).cooldown = 0", "!player.moving"}},
+			
+			-- Mind Flay: Insanity
+			{"!129197", {
+				"talent(3, 3)",
+				"!player.moving",
+				"player.buff(132573)",
+				"timeout(insanity, 1)",
+				"!modifier.last(129197)",
+				(function() return dynamicEval("player.buff(132573).duration < "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end),
+				(function() return dynamicEval("player.spell(8092).cooldown > "..miLib.round((0.5*(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			{"129197", {"talent(3, 3)", "!player.moving", "player.buff(132573)"}},
+			
+			-- Shadow Word: Pain
+			{"589", "target.debuff(589).duration < 6"},
+			
+			-- Vampiric Touch
+			{"34914", {
+				"!player.moving",
+				(function() return dynamicEval("target.debuff(34914).duration < "..miLib.round((15*0.3+(1.5/((100+GetHaste("player"))/100))),2)) end)
+			}},
+			
+			-- Multidotting
+			{{
+				{"!589", "@miLib.manager(589, 5)"},
+				{{
+					{"!34914", {"@miLib.manager(34914, 5)"}}
+				}, {"!modifier.last(34914)", "!player.moving"}}
+			}, "modifier.multitarget"},
+			
+			-- Devouring Plague
+			{"2944", {"!talent(7, 2)", "player.shadoworbs >= 3", "target.debuff(158831)", "target.debuff(158831).duration < 0.9"}},
+			
+			-- Mind Spike: Surge of Darkness
+			{"73510", {"talent(3, 1)", "player.buff(87160).count = 3"}},
+			
+			-- Level 90 Talents
+			{{
+				{"120644", {"talent(6, 3)", "target.distance <= 30", "target.distance >= 17"}},
+				{"122121", {"talent(6, 2)", "target.distance <= 24"}},
+				{"127632", {"talent(6, 1)", "target.distance >= 11", "target.distance <= 39"}}
+			}, (function() return fetch('miraShadowConfig', 'l90_talents') end)},
+			
+			-- Mind Spike: Surge of Darkness
+			{"73510", {"talent(3, 1)", "player.buff(87160)"}},
+			
+			-- Dots with Mind Flay: Insanity
+			{{
+				{"589", {"target.debuff(589)", "target.debuff(589).duration <= 9"}},
+				{"34914", {"target.debuff(34914)", "target.debuff(34914).duration <= 9"}}
+			}, {"talent(3, 3)", "player.shadoworbs >= 2"}},
+			
+			-- Mind Flay
+			{"15407", "player.spell(8092).cooldown > 0.5"}
+		}, {"!talent(7, 1)", "!talent(7, 2)"}}
+	}, (function()
+			if ProbablyEngine.config.read('button_states', 'aoe', false) then
+				if FireHack then
+					if dynamicEval("target.area(10).enemies >= "..fetch('miraShadowConfig', 'msear_units')) then return false else return true end
+				else
+					if ProbablyEngine.condition["modifier.control"]() then return false else return true end
+				end
+			else return true end
+		end)
+	}
 }
 
 -- Out of combat
-local beforeCombat = {}
+local beforeCombat = {
+	-- Buffing
+	{{
+		{"15473", "!player.buff(15473)"},
+		{"21562", "!player.buffs.stamina"}
+	}, "player.alive"},
+	
+	-- Raid/Party buffing
+	{{
+		--{"21562", "@miLib.raidbuffing()"}
+	}, (function() return fetch('miraShadowConfig', 'buff_raid') end)},
+	
+	-- Feathers / Power Word: Shield
+	{{
+		{"17", {"talent(2, 1)", "!player.debuff(6788)"}},
+		{"121536", {"talent(2, 2)", "player.spell(121536).charges > 1", "player.buff(121557).duration < 0.2", "player.moving"}, "player.ground"}
+	}, {(function() return fetch('miraShadowConfig', 'speed_increase') end),
+		(function() return (not fetch('miraShadowConfig', 'speed_increase_combat') and true or false) end)}},
+	
+	-- Auto combat
+	{{
+		{"/cast "..GetSpellInfo(589), "target.alive"}
+	}, (function() return fetch('miraShadowConfig', 'force_attack') end)}
+}
 
 -- Register our rotation
 ProbablyEngine.rotation.register_custom(258, "[|cff005522Mirakuru Rotations|r] Shadow Priest", combatRotation, beforeCombat, btn)

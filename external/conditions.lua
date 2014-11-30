@@ -4,33 +4,29 @@
 ]]
 -- Check if a unit is crowd controlled
 ProbablyEngine.condition.register("cc", function(target)
-	local isCC = miLib.CC
-	if isCC then return true else return false end
-end)
-
--- Shadow Priest Mind Harvest
-ProbablyEngine.condition.register("harvest", function(target)
-	if UnitExists(target) then
-		if not miLib.mindHarvest or UnitGUID(target) ~= miLib.mindHarvest then return true end
-	end
-	return false
+	if miLib.CC(target) then return true else return false end
 end)
 
 -- Affliction specific, counts beneficient procs for Haunt
-ProbablyEngine.condition.register("aff.procs", function(target)
-	local count = miLib.affAuraProc
-	return count
+ProbablyEngine.condition.register("aff.procs", function()
+	return miLib.affAuraProc
 end)
 
 -- Universal, counts +Intellect procs and stacking procs (6+) stacks
-ProbablyEngine.condition.register("int.procs", function(target)
-	local count = miLib.hasIntProcs
-	local timer = miLib.intProcTimer
-	
+ProbablyEngine.condition.register("crit.procs", function()
 	if select(1,GetSpecializationInfo(GetSpecialization())) == 267 then
-		if timer - GetTime() >= (2.5 / ((GetHaste("player") / 100)  + 1)) then return count end
+		if miLib.critTimer - GetTime() >= (2.5 / ((GetHaste("player") / 100)  + 1)) then return miLib.hasCritProc end
 	else
-		return count
+		return miLib.hasCritProc
+	end
+end)
+
+-- Universal, counts +Intellect procs and stacking procs (6+) stacks
+ProbablyEngine.condition.register("int.procs", function()
+	if select(1,GetSpecializationInfo(GetSpecialization())) == 267 then
+		if miLib.intProcTimer - GetTime() >= (2.5 / ((GetHaste("player") / 100)  + 1)) then return miLib.hasIntProcs end
+	else
+		return miLib.hasIntProcs
 	end
 end)
 
