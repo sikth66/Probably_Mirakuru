@@ -61,6 +61,9 @@ local combatRotation = {
 		end)
 	}},
 	
+	-- Silence
+	{"15487", "target.interruptAt(20)"},
+	
 	-- Mouseover Multidotting --
 	{{
 		{"589", "mouseover.debuff(589).duration <= 6", "mouseover"},
