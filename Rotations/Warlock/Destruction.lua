@@ -220,10 +220,12 @@ local combatRotation = {
 		-- Ember Tap, jk, Shadowburn
 		{{
 			{{{"!17877", "@miLib.manager(17877, 0, 20)"}}, "modifier.multitarget"},
-			{"!17877", "player.embers >= 25"},
-			{"!17877", "player.buff(113858).duration >= 1"},
-			{"!17877", "target.ttd < 10"}
-		}, {"target.health <= 20", "player.embers >= 10"}},
+			{{
+				{"!17877", "player.embers >= 25"},
+				{"!17877", "player.buff(113858).duration >= 1"},
+				{"!17877", "target.ttd < 10"}
+			}, "target.health <= 20"}
+		}, "player.embers >= 10"},
 		
 		-- Emergency Immolate
 		{{
@@ -265,7 +267,7 @@ local combatRotation = {
 			{{
 				{"116858", "int.procs > 0"},
 				{"116858", "crit.procs > 0"},
-				{"116858", {(function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end), "player.spell(80240).cooldown > 4"}},
+				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
 				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
 				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
 			}, {"player.buff(117828).count < 3", "player.embers >= 10", "!player.moving"}},
@@ -342,7 +344,8 @@ local beforeCombat = {
 	
 	-- Auto combat
 	{{
-		{"/cast "..GetSpellInfo(29722), "target.alive"}
+		{"/tar Poundfist"},
+		{"/cast "..GetSpellInfo(17962), "target.alive"}
 	}, (function() return fetch('miraDestruConfig', 'force_attack') end)}
 }
 

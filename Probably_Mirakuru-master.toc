@@ -3,13 +3,14 @@
 ## Notes: ProbablyEngine Custom Rotations by Mirakuru
 ## Dependencies: Probably
 ## Author: Mirakuru
-## Version: 2.7.1
+## Version: 2.7.2
 
 -- Library References
 external\core.lua
 external\listener.lua
 external\conditions.lua
 external\manager.lua
+external\encounter_logic.lua
 
 -- Interfaces
 interface\shadow.lua

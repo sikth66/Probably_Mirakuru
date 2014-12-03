@@ -6,10 +6,22 @@ local unitList = {}
 
 ProbablyEngine.listener.register("PLAYER_REGEN_DISABLED", function(...)
 	wipe(unitList)
+	miLib.vt = 0
+	miLib.swp = 0
+	miLib.auCount = 0
+	miLib.corrCount = 0
+	miLib.immoCount = 0
+	miLib.agonyCount = 0
 end)
 
 ProbablyEngine.listener.register("PLAYER_REGEN_ENABLED", function(...)
 	wipe(unitList)
+	miLib.vt = 0
+	miLib.swp = 0
+	miLib.auCount = 0
+	miLib.corrCount = 0
+	miLib.immoCount = 0
+	miLib.agonyCount = 0
 end)
 
 ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
@@ -65,19 +77,6 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		end
 	end
 	
-	if event == "UNIT_DIED" then
-		for i=1, #unitList do
-			if target == unitList[i].guid then
-				if unitList[i].spell == 589 then miLib.swp = miLib.swp - 1 end
-				if unitList[i].spell == 34914 then miLib.vt = miLib.vt - 1 end
-				if unitList[i].spell == 30108 then miLib.auCount = miLib.auCount - 1 end
-				if unitList[i].spell == 348 then miLib.immoCount = miLib.immoCount - 1 end
-				if unitList[i].spell == 980 then miLib.agonyCount = miLib.agonyCount - 1 end
-				if unitList[i].spell == 146739 then miLib.corrCount = miLib.corrCount - 1 end
-			end
-		end
-	end
-	
 	if event == "SPELL_AURA_REMOVED" and source == UnitGUID("player") then
 		if affAuras[spell] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
 		if intProcs[spell] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs - 1 end
@@ -106,6 +105,37 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		-- Unstable Affliction
 		if spell == 30108 and (UnitExists("target") and UnitGUID("target") ~= target) then
 			miLib.auCount = miLib.auCount - 1
+		end
+	end
+	
+	if event == "UNIT_DIED" then
+		for i=1, #unitList do
+			if unitList[i].guid == target then
+				if unitList[i].spell == 348 then
+					miLib.immoCount = miLib.immoCount - 1
+					tremove(unitList, i)
+				end
+				if unitList[i].spell == 589 then
+					miLib.swp = miLib.swp - 1
+					tremove(unitList, i)
+				end
+				if unitList[i].spell == 34914 then
+					miLib.vt = miLib.vt - 1
+					tremove(unitList, i)
+				end
+				if unitList[i].spell == 980 then
+					miLib.agonyCount = miLib.agonyCount - 1
+					tremove(unitList, i)
+				end
+				if unitList[i].spell == 146739 then
+					miLib.corrCount = miLib.corrCount - 1
+					tremove(unitList, i)
+				end
+				if unitList[i].spell == 30108 then
+					miLib.auCount = miLib.auCount - 1
+					tremove(unitList, i)
+				end
+			end
 		end
 	end
 return end)

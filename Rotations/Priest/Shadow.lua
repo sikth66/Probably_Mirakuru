@@ -62,13 +62,13 @@ local combatRotation = {
 	}},
 	
 	-- Silence
-	{"15487", "target.interruptAt(20)"},
+	{"15487", {"target.interruptAt(20)", "target.distance < 30"}},
 	
 	-- Mouseover Multidotting --
 	{{
 		{"589", "mouseover.debuff(589).duration <= 6", "mouseover"},
 		{"34914", {"mouseover.debuff(34914).duration <= 6", "!player.moving"}, "mouseover"}
-	}, {"modifier.multitarget", "!player.target(mouseover)", "mouseover.enemy(player)"}},
+	}, {"!player.target(mouseover)", "mouseover.enemy(player)"}},
 	
 	-- Defensive Cooldowns --
 	{{
@@ -93,6 +93,18 @@ local combatRotation = {
 	
 	-- AOE Rotation .. if you can call it AOE --
 	{{
+		{{
+			{"!2944", "player.shadoworbs >= 5"},
+			{"!2944", {"player.buff(167254)", "player.buff(167254).duration <= 1.5"}},
+		}, "player.shadoworbs >= 3"},
+		{{
+			{"!32379", {"target.health < 20", "player.spell(32379).cooldown = 0"}},
+			{{
+				{"!32379", "@miLib.manager(32379, 0, 20)"}
+			}, {"modifier.multitarget", "player.spell(32379).cooldown = 0"}},
+			{"!129176", {"player.glyph(120583)", "player.spell(32379).cooldown = 0", "player.health > 20"}}
+		}},
+		{"!8092", "player.spell(8092).cooldown = 0"},
 		{"!589", "@miLib.manager(589)"},
 		{"!589", "!target.debuff(589)"},
 		{"48045", "!player.moving"}
