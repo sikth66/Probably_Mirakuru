@@ -16,11 +16,11 @@
 -- Manager cache
 local unitCache = {}
 local function cache()
-	local totalObjects = ObjectCount()
 	local specID = GetSpecializationInfo(GetSpecialization())
 	wipe(unitCache)
 	
 	if FireHack then
+		local totalObjects = ObjectCount()
 		for i=1, totalObjects do
 			local object = ObjectWithIndex(i)
 			if ObjectExists(object) then

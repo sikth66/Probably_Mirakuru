@@ -182,6 +182,11 @@ local combatRotation = {
 	-- Rain of Fire hotkey --
 	{"104232", "modifier.lalt", "mouseover.ground"},
 	
+	-- Immolate Mouseover --
+	{{
+		{"348", "!mouseover.debuff(157736)", "mouseover"}
+	}, {"!player.target(mouseover)", "mouseover.enemy(player)"}},
+	
 	-- AoE Rotation --
 	{{
 		{"152108", {"talent(7, 2)", "player.spell(152108).cooldown = 0", "!player.moving"}, "target.ground"},
@@ -274,6 +279,7 @@ local combatRotation = {
 			
 			-- Immolate
 			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
+			{"348", {"!target.debuff(157736)", "!player.moving", "!modifier.last(348)"}},
 			
 			-- Immolate multidotting
 			{{{"348", "@miLib.manager(348, 4)"}}, {"modifier.multitarget", "!player.moving"}},
