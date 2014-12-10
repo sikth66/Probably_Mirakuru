@@ -2,7 +2,9 @@
 	Combat log listener for Mirakuru Profiles
 	Created by Mirakuru
 ]]
-local unitList = {}
+
+-- Store units temporarily
+miLib.unitList = {}
 
 -- Register Combat Log events
 ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
@@ -39,38 +41,38 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		-- Destruction DOT counters
 		if specID == 267 then
 			if spellID == 157736 then	-- Immolate
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].immo = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].immo = true
 				else
-					unitList[targetGUID] = {immo = true}
+					miLib.unitList[targetGUID] = {immo = true}
 				end
-				miLib.immoCount = miLib.immoCount + 1				
+				miLib.immoCount = miLib.immoCount + 1
 			end
 		end
 		
 		-- Affliction DOT counters
 		if specID == 265 then
 			if spellID == 980 then		-- Agony
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].ag = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].ag = true
 				else
-					unitList[targetGUID] = {ag = true, cor = false, ua = false}
+					miLib.unitList[targetGUID] = {ag = true, cor = false, ua = false}
 				end
 				miLib.agonyCount = miLib.agonyCount + 1
 			end
 			if spellID == 146739 then	-- Corruption
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].cor = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].cor = true
 				else
-					unitList[targetGUID] = {ag = false, cor = true, ua = false}
+					miLib.unitList[targetGUID] = {ag = false, cor = true, ua = false}
 				end
 				miLib.corrCount = miLib.corrCount + 1
 			end
 			if spellID == 30108 then	-- Unstable Affliction
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].ua = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].ua = true
 				else
-					unitList[targetGUID] = {ag = false, cor = false, ua = true}
+					miLib.unitList[targetGUID] = {ag = false, cor = false, ua = true}
 				end
 				miLib.auCount = miLib.auCount + 1
 			end
@@ -79,18 +81,18 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		-- Shadow Priest DOT counters
 		if specID == 258 then
 			if spellID == 589 then		-- Shadow Word: Pain
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].swp = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].swp = true
 				else
-					unitList[targetGUID] = {swp = true, vt = false}
+					miLib.unitList[targetGUID] = {swp = true, vt = false}
 				end
 				miLib.swp = miLib.swp + 1
 			end
 			if spellID == 34914 then	-- Vampiric Touch
-				if unitList[targetGUID] ~= nil then
-					unitList[targetGUID].vt = true
+				if miLib.unitList[targetGUID] ~= nil then
+					miLib.unitList[targetGUID].vt = true
 				else
-					unitList[targetGUID] = {swp = false, vt = true}
+					miLib.unitList[targetGUID] = {swp = false, vt = true}
 				end
 				miLib.vt = miLib.vt + 1
 			end
@@ -113,11 +115,11 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		
 		-- Destruction DOT counters
 		if specID == 267 then
-			if unitList[targetGUID] ~= nil then
+			if miLib.unitList[targetGUID] ~= nil then
 				if spellID == 157736 then	-- Immolate
-					if unitList[targetGUID].immo then
+					if miLib.unitList[targetGUID].immo then
 						miLib.immoCount = miLib.immoCount - 1
-						unitList[targetGUID].immo = false
+						miLib.unitList[targetGUID].immo = false
 					end
 				end
 			end
@@ -125,23 +127,23 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		
 		-- Affliction DOT counters
 		if specID == 265 then
-			if unitList[targetGUID] ~= nil then
+			if miLib.unitList[targetGUID] ~= nil then
 				if spellID == 980 then		-- Agony
-					if unitList[targetGUID].ag then
+					if miLib.unitList[targetGUID].ag then
 						miLib.agonyCount = miLib.agonyCount - 1
-						unitList[targetGUID].ag = false
+						miLib.unitList[targetGUID].ag = false
 					end
 				end
 				if spellID == 146739 then	-- Corruption
-					if unitList[targetGUID].cor then
+					if miLib.unitList[targetGUID].cor then
 						miLib.corrCount = miLib.corrCount - 1
-						unitList[targetGUID].cor = false
+						miLib.unitList[targetGUID].cor = false
 					end
 				end
 				if spellID == 30108 then	-- Unstable Affliction
-					if unitList[targetGUID].ua then
+					if miLib.unitList[targetGUID].ua then
 						miLib.auCount = miLib.auCount - 1
-						unitList[targetGUID].ua = false
+						miLib.unitList[targetGUID].ua = false
 					end
 				end
 			end
@@ -149,17 +151,17 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		
 		-- Shadow Priest DOT counters
 		if specID == 258 then
-			if unitList[targetGUID] ~= nil then
+			if miLib.unitList[targetGUID] ~= nil then
 				if spellID == 589 then		-- Shadow Word: Pain
-					if unitList[targetGUID].swp then
+					if miLib.unitList[targetGUID].swp then
 						miLib.swp = miLib.swp - 1
-						unitList[targetGUID].swp = false
+						miLib.unitList[targetGUID].swp = false
 					end
 				end
 				if spellID == 34914 then	-- Vampiric Touch
-					if unitList[targetGUID].vt then
+					if miLib.unitList[targetGUID].vt then
 						miLib.vt = miLib.vt - 1
-						unitList[targetGUID].vt = false
+						miLib.unitList[targetGUID].vt = false
 					end
 				end
 			end
@@ -168,28 +170,29 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	
 	
 	if event == "UNIT_DIED" then
-		if unitList[targetGUID] ~= nil then
+		if miLib.unitList[targetGUID] ~= nil then
 			if specID == 267 then	-- Destruction Warlock
-				miLib.immoCount = miLib.immoCount - 1
-				unitList[targetGUID] = nil
+				if miLib.unitList[targetGUID].immo then miLib.immoCount = miLib.immoCount - 1 end
+				miLib.unitList[targetGUID] = nil
 			end
 			
 			if specID == 265 then	-- Affliction Warlock
-				if unitList[targetGUID].ag then miLib.agonyCount = miLib.agonyCount - 1 end
-				if unitList[targetGUID].cor then miLib.corrCount = miLib.corrCount - 1 end
-				if unitList[targetGUID].ua then miLib.auCount = miLib.auCount - 1 end
-				unitList[targetGUID] = nil
+				if miLib.unitList[targetGUID].ag then miLib.agonyCount = miLib.agonyCount - 1 end
+				if miLib.unitList[targetGUID].cor then miLib.corrCount = miLib.corrCount - 1 end
+				if miLib.unitList[targetGUID].ua then miLib.auCount = miLib.auCount - 1 end
+				miLib.unitList[targetGUID] = nil
 			end
 			
 			if specID == 258 then	-- Shadow Priest
-				if unitList[targetGUID].vt then miLib.vt = miLib.vt - 1 end
-				if unitList[targetGUID].swp then miLib.swp = miLib.swp - 1 end
-				unitList[targetGUID] = nil
+				if miLib.unitList[targetGUID].vt then miLib.vt = miLib.vt - 1 end
+				if miLib.unitList[targetGUID].swp then miLib.swp = miLib.swp - 1 end
+				miLib.unitList[targetGUID] = nil
 			end
 		end
 	end
 end)
 
+-- Reset counters/clear table when entering combat
 ProbablyEngine.listener.register("PLAYER_REGEN_DISABLED", function(...)
 	local specID = GetSpecializationInfo(GetSpecialization())
 	
@@ -203,9 +206,10 @@ ProbablyEngine.listener.register("PLAYER_REGEN_DISABLED", function(...)
 		miLib.agonyCount = 0
 	end
 	if specID == 267 then miLib.immoCount = 0 end
-	wipe(unitList)
+	wipe(miLib.unitList)
 end)
 
+-- Reset counters/clear table when leaving combat
 ProbablyEngine.listener.register("PLAYER_REGEN_ENABLED", function(...)
 	local specID = GetSpecializationInfo(GetSpecialization())
 	
@@ -219,5 +223,5 @@ ProbablyEngine.listener.register("PLAYER_REGEN_ENABLED", function(...)
 		miLib.agonyCount = 0
 	end
 	if specID == 267 then miLib.immoCount = 0 end
-	wipe(unitList)
+	wipe(miLib.unitList)
 end)

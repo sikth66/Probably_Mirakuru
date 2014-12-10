@@ -2,32 +2,33 @@
 	Core settings and functions for Mirakuru Profiles
 	Created by Mirakuru
 ]]
+
 -- Library Table
 miLib = {}
 
--- Multidotting counters
+-- Warlock multitarget counters
 miLib.auCount = 0
 miLib.corrCount = 0
 miLib.immoCount = 0
 miLib.agonyCount = 0
 
--- Shadow multidotting counters
+-- Shadow multitarget counters
 miLib.vt = 0
 miLib.swp = 0
 miLib.vent = 0
 
--- Proc Counters
+-- Proc counters
 miLib.hasIntProcs = 0
 miLib.affAuraProc = 0
 miLib.hasCritProc = 0
 
--- Last registered proc timers
+-- Timers for last occuring proc
 miLib.critTimer = 0
 miLib.intProcTimer = 0
 
 -- Register commands
 ProbablyEngine.command.register('miracle', function(msg, box)
-local command, text = msg:match("^(%S*)%s*(.-)$")
+	local command, text = msg:match("^(%S*)%s*(.-)$")
 	if command == "config" or command == "settings" then
 		if GetSpecializationInfo(GetSpecialization()) == 265 then
 			miLib.displayFrame(mirakuru_aff_config)
@@ -39,7 +40,7 @@ local command, text = msg:match("^(%S*)%s*(.-)$")
 	end
 end)
 
--- Configure interface
+-- Display interface function
 function miLib.displayFrame(frame)
 	if not createFrame then
 		windowRef = ProbablyEngine.interface.buildGUI(frame)
@@ -58,12 +59,12 @@ function miLib.displayFrame(frame)
 	end
 end
 
--- Rounding function
+-- Rounding numbers
 function miLib.round(num, idp)
 	return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
--- Crowd Control abilities
+-- Crowd Control check
 function miLib.CC(unit)
 	local CC = {118,28272,28271,61305,61721,61780,9484,3355,19386,339,6770,6358,20066,51514,115078,115268}
 	for i=1,#CC do
@@ -72,18 +73,7 @@ function miLib.CC(unit)
 	return false
 end
 
---[[function getCreatureType(unit)
-	local creature = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
-	for i=1, #creature do
-		if UnitCreatureType(unit) == creature[i] then return false end
-	end
-	
-	-- Battle Pets
-	if UnitIsBattlePet(unit)
-		and UnitIsWildBattlePet(unit) then return false else return true end
-end]]
-
--- Checks if a unit is within our 180 degree cone of attack
+-- Check if a unit is within our 180 degree cone of attack
 function infront(unit)
 	local aX, aY, aZ = ObjectPosition(unit)
 	local bX, bY, bZ = ObjectPosition('player')
@@ -92,4 +82,5 @@ function infront(unit)
 	return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
 end
 
+-- Register all functions in the library
 ProbablyEngine.library.register("miLib", miLib)

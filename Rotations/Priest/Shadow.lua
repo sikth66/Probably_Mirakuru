@@ -222,9 +222,9 @@ local combatRotation = {
 					
 					-- Multidotting
 					{{
-						{"!589", "@miLib.manager(589, 5)"},
+						{"!589", "@miLib.manager(589)"},
 						{{
-							{"!34914", {"@miLib.manager(34914, 5)"}}
+							{"!34914", {"@miLib.manager(34914)"}}
 						}, {"!modifier.last(34914)", "!player.moving"}}
 					}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
 					
@@ -312,9 +312,9 @@ local combatRotation = {
 					
 					-- Multidotting
 					{{
-						{"!589", "@miLib.manager(589, 5)"},
+						{"!589", "@miLib.manager(589)"},
 						{{
-							{"!34914", {"@miLib.manager(34914, 5)"}}
+							{"!34914", {"@miLib.manager(34914)"}}
 						}, {"!modifier.last(34914)", "!player.moving"}}
 					}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
 					
@@ -358,9 +358,9 @@ local combatRotation = {
 				
 				-- Multidotting
 				{{
-					{"!589", "@miLib.manager(589, 5)"},
+					{"!589", "@miLib.manager(589)"},
 					{{
-						{"!34914", {"@miLib.manager(34914, 5)"}}
+						{"!34914", {"@miLib.manager(34914)"}}
 					}, {"!modifier.last(34914)", "!player.moving"}}
 				}, {"player.shadoworbs <= 4", "modifier.multitarget"}},
 				
@@ -452,9 +452,9 @@ local combatRotation = {
 			
 			-- Multidotting
 			{{
-				{"!589", "@miLib.manager(589, 5)"},
+				{"!589", "@miLib.manager(589)"},
 				{{
-					{"!34914", {"@miLib.manager(34914, 5)"}}
+					{"!34914", {"@miLib.manager(34914)"}}
 				}, {"!modifier.last(34914)", "!player.moving"}}
 			}, "modifier.multitarget"},
 			
@@ -535,9 +535,9 @@ local combatRotation = {
 			
 			-- Multidotting
 			{{
-				{"!589", "@miLib.manager(589, 5)"},
+				{"!589", "@miLib.manager(589)"},
 				{{
-					{"!34914", {"@miLib.manager(34914, 5)"}}
+					{"!34914", {"@miLib.manager(34914)"}}
 				}, {"!modifier.last(34914)", "!player.moving"}}
 			}, "modifier.multitarget"},
 			

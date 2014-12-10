@@ -74,8 +74,8 @@ local combatRotation = {
 	{"!109773", "!player.buffs.spellpower"},
 	
 	-- Burning Rush
+	{"/cancelaura "..GetSpellInfo(111400), {"!player.moving", "player.buff(111400)"}},
 	{{
-		{"/cancelaura "..GetSpellInfo(111400), {"!player.moving", "player.buff(111400)"}},
 		{"/cancelaura "..GetSpellInfo(111400), {
 			"player.buff(111400)",
 			(function() return dynamicEval("player.health <= " .. fetch('miraDestruConfig', 'burning_rush_spin')) end)
@@ -270,8 +270,8 @@ local combatRotation = {
 			
 			-- Chaos Bolt
 			{{
-				{"116858", "int.procs > 0"},
-				{"116858", "crit.procs > 0"},
+				{"116858", "player.int.procs > 0"},
+				{"116858", "player.crit.procs > 0"},
 				{"116858", (function() return dynamicEval("player.embers >= "..fetch('miraDestruConfig', 'embers_cb_max')) end)},
 				{"116858", (function() return dynamicEval("player.buff(113858).duration >= "..miLib.round((2.5 / ((GetHaste("player") / 100)  + 1)),2)) end)},
 				{"116858", {"target.ttd >= 4", "target.ttd < 20"}}
@@ -281,11 +281,11 @@ local combatRotation = {
 			{"348", {"target.debuff(157736).duration < 4.5", "!player.moving", "!modifier.last(348)", "!player.buff(113858)"}},
 			{"348", {"!target.debuff(157736)", "!player.moving", "!modifier.last(348)"}},
 			
-			-- Immolate multidotting
-			{{{"348", "@miLib.manager(348, 4)"}}, {"modifier.multitarget", "!player.moving"}},
-			
 			-- Conflagrate
 			{"17962", "player.spell(17962).charges > 0"},
+			
+			-- Immolate multidotting
+			{{{"348", "@miLib.manager(348, 4)"}}, {"modifier.multitarget", "!player.moving"}},
 			
 			-- Incinerlol
 			{"29722", "!player.moving"}
@@ -317,6 +317,17 @@ local combatRotation = {
 
 -- Out of Combat
 local beforeCombat = {
+	--{"#110293", "!player.buff(158038)"},
+	--[[{"#118391", {
+		"!modifier.last(174471)",
+		"!player.buff(131490)",
+		(function()
+			local hasEnchant,time,_,_,_,_ = GetWeaponEnchantInfo()
+			if not hasEnchant then return true end
+			if hasEnchant and time/1000 < 5 then return true end
+		end)
+	}},]]
+	
 	-- Dark Intent
 	{"109773", "!player.buffs.multistrike"},
 	{"109773", "!player.buffs.spellpower"},
