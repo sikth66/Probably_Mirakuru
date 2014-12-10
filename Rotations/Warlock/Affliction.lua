@@ -129,7 +129,7 @@ local combatRotation = {
 		{"!112927", {"!talent(7, 3)", "talent(5, 1)", "player.spell(112927).cooldown = 0"}},
 		{{
 			{"!113860", "player.spell(113860).charges = 2"},
-			{"!113860", "int.procs > 0"},
+			{"!113860", "player.int.procs > 0"},
 			{"!113860", "target.health <= 10"}
 		}, {"talent(6, 1)", "player.spell(113860).charges > 0"}},
 		{"!113860", "!talent(6, 1)", "player.spell(113860).cooldown = 0"},
@@ -237,13 +237,13 @@ local combatRotation = {
 	{{
 		{{
 			{{
-				{"!48181", "aff.procs > 0"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"}
 			}, {"target.debuff(48181).duration <= 5", "!modifier.last(48181)"}},
 			{{
-				{"!48181", "aff.procs > 0"},
+				{"!48181", "player.aff.procs > 0"},
 				{"!48181", "player.buff(113860)"},
 				{"!48181", "player.soulshards > 2"},
 				{"!48181", "target.health < 15"}
