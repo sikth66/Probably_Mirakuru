@@ -62,6 +62,33 @@ local function cache(cache_type, blacklist, combatCheck)
 			end
 		end
 	end
+	
+	if cache_type == "default" then
+		local groupType = IsInRaid() and "raid" or "party"
+		for i = 1, GetNumGroupMembers() do
+			local target = groupType..i.."target"
+			if UnitCanAttack("player", target) then
+				if not UnitIsPlayer(target) then
+					if not UnitIsOtherPlayersPet(target) then
+						if ProbablyEngine.condition["alive"](target) then
+							if ProbablyEngine.condition["distance"](target) < 40 then
+								if ((not combatCheck and true) or UnitAffectingCombat(target)) then
+									if not blacklist or (blacklist and blacklist[UnitID(target)] ~= UnitID(target)) then
+										table.insert(cachedUnits, {
+											object = UnitGUID(target),
+											guid = UnitGUID(target),
+											hp = UnitHealth(target),
+											hp2 = math.floor((UnitHealth(target)/UnitHealthMax(target))*100)
+										})
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 -- Spell Manager
@@ -202,15 +229,39 @@ function miLib.manager(spell, maxCount, minHealth)
 			if spell == 30108 and miLib.auCount >= ProbablyEngine.interface.fetchKey('miraAffConfig', 'ua_units') then return false end
 		end
 		
+		-- Sanity checks, to keep things clean.
+		if UnitDebuff("target", GetSpellInfo(48181), nil, "player") then return false end
+		if UnitCastingInfo("player") == GetSpellInfo(48181) then return false end
+		if UnitCastingInfo("player") == GetSpellInfo(spell) then return false end
+		
 		for i=1, #cachedUnits do
 			if cachedUnits[i].hp2 >= 5 then
 				if not miLib.CC(cachedUnits[i].object) then
 					if not UnitIsUnit("target", cachedUnits[i].object) then
 						if infront(cachedUnits[i].object) then
-							if not UnitDebuff(cachedUnits[i].object, GetSpellInfo(spell), nil, "PLAYER") then
-								if ProbablyEngine.parser.can_cast(spell, cachedUnits[i].object, false) then
-									ProbablyEngine.dsl.parsedTarget = cachedUnits[i].object
-									return true
+							if specID == 265 then
+								if spell == 980 then
+									local debuff = select(7,UnitDebuff(cachedUnits[i].object, GetSpellInfo(spell), nil, "PLAYER"))
+									if not debuff or debuff - GetTime() < 4 then
+										if ProbablyEngine.parser.can_cast(spell, cachedUnits[i].object, true) then
+											ProbablyEngine.dsl.parsedTarget = cachedUnits[i].object
+											return true
+										end
+									end
+								else
+									if not UnitDebuff(cachedUnits[i].object, GetSpellInfo(spell), nil, "PLAYER") then
+										if ProbablyEngine.parser.can_cast(spell, cachedUnits[i].object, true) then
+											ProbablyEngine.dsl.parsedTarget = cachedUnits[i].object
+											return true
+										end
+									end
+								end
+							else
+								if not UnitDebuff(cachedUnits[i].object, GetSpellInfo(spell), nil, "PLAYER") then
+									if ProbablyEngine.parser.can_cast(spell, cachedUnits[i].object, false) then
+										ProbablyEngine.dsl.parsedTarget = cachedUnits[i].object
+										return true
+									end
 								end
 							end
 						end

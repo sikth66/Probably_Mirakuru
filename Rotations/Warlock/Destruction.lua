@@ -37,7 +37,8 @@ end
 
 -- Buttons
 local btn = function()
-	ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\ability_warlock_fireandbrimstone.png', 'Enable AOE', "Enables the AOE rotation within the combat rotation.")	
+	ProbablyEngine.toggle.create('mdots', 'Interface\\Icons\\spell_fire_felimmolation.png', 'Mousover Dotting', "Enables mouseover-dotting within the combat rotation.")
+	ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\ability_warlock_fireandbrimstone.png', 'AOE', "Enables the AOE rotation within the combat rotation.")
 	ProbablyEngine.toggle.create('GUI', 'Interface\\Icons\\trade_engineering.png"', 'GUI', 'Toggle GUI', (function() miLib.displayFrame(mirakuru_destru_config) end))
 	
 	-- Force open/close to save default settings
@@ -130,7 +131,7 @@ local combatRotation = {
 		"modifier.cooldowns",
 		(function()
 			if fetch('miraDestruConfig', 'cd_bosses_only') then
-				if ProbablyEngine.condition["boss"]("target") then return true else return false end
+				if miLib.unitBoss("target") then return true else return false end
 			else return true end
 		end)
 	}},
@@ -185,7 +186,10 @@ local combatRotation = {
 	-- Immolate Mouseover --
 	{{
 		{"348", "!mouseover.debuff(157736)", "mouseover"}
-	}, {"!player.target(mouseover)", "mouseover.enemy(player)"}},
+	}, {"!player.target(mouseover)", "mouseover.enemy(player)", "toggle.mdots"}},
+	
+	-- RoF Target while moving
+	{"104232", {"player.moving", "target.distance <= 20", "!target.debuff(104232)"}, "target.ground"},
 	
 	-- AoE Rotation --
 	{{
@@ -216,18 +220,23 @@ local combatRotation = {
 	
 	-- Single Target Rotation --
 	{{
-		-- Fire and Brimstone bad
+		-- Fire and Brimstone
 		{"/cancelaura "..GetSpellInfo(108683), "player.buff(108683)"},
 		
-		-- Yay, Havoc
+		-- Havoc
 		{{{"!80240", "@miLib.manager(80240)"}}, "modifier.multitarget"},
 		
-		-- Ember Tap, jk, Shadowburn
+		-- Shadowburn
 		{{
-			{{{"!17877", "@miLib.manager(17877, 0, 20)"}}, "modifier.multitarget"},
+			-- Shadowburn: Multitarget
 			{{
-				{"!17877", "player.embers >= 25"},
-				{"!17877", "player.buff(113858).duration >= 1"},
+				{"!17877", "@miLib.manager(17877, 0, 20)"}
+			}, "modifier.multitarget"},
+			
+			-- Shadowburn: Target
+			{{
+				{"!17877", "player.embers >= 30"},
+				{"!17877", "player.buff(113858)"},
 				{"!17877", "target.ttd < 10"}
 			}, "target.health <= 20"}
 		}, "player.embers >= 10"},
@@ -263,7 +272,7 @@ local combatRotation = {
 		-- Cataclysm
 		{"152108", {"talent(7, 2)", (function() return fetch('miraDestruConfig', 'cata_st') end), "player.spell(152108).cooldown = 0", "!player.moving"}, "target.ground"},
 		
-		-- Havoc is bad for you
+		-- Prevent normal spells while Havoc is active
 		{{
 			-- Conflagrate
 			{"17962", {"player.spell(17962).charges = 2", "target.debuff(157736)"}},

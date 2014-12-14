@@ -6,6 +6,11 @@
 -- Library Table
 miLib = {}
 
+-- Misc Affliction crap
+miLib.hauntCasted = false
+miLib.shardTimer = 0
+miLib.lastCorrupt = nil
+
 -- Warlock multitarget counters
 miLib.auCount = 0
 miLib.corrCount = 0
@@ -19,12 +24,15 @@ miLib.vent = 0
 
 -- Proc counters
 miLib.hasIntProcs = 0
-miLib.affAuraProc = 0
 miLib.hasCritProc = 0
+miLib.hasMastProcs = 0
+miLib.hasHasteProcs = 0
 
 -- Timers for last occuring proc
 miLib.critTimer = 0
 miLib.intProcTimer = 0
+miLib.mastProcTimer = 0
+miLib.hasteProcTimer = 0
 
 -- Register commands
 ProbablyEngine.command.register('miracle', function(msg, box)
@@ -80,6 +88,12 @@ function infront(unit)
 	local playerFacing = GetPlayerFacing()
 	local facing = math.atan2(bY - aY, bX - aX) % 6.2831853071796
 	return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
+end
+
+function miLib.unitBoss(unit)
+	local LibBoss = LibStub("LibBossIDs-1.0")
+	if UnitLevel(unit) == -1 or LibBoss.BossIDs[tonumber(UnitID(unit))] then return true end
+	return false
 end
 
 -- Register all functions in the library

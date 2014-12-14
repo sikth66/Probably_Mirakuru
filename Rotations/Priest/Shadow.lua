@@ -15,7 +15,8 @@ end
 
 -- Buttons
 local btn = function()
-	ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\spell_shadow_mindshear.png', 'Enable AOE', "Enables the AOE rotation within the combat rotation.")	
+	ProbablyEngine.toggle.create('mdots', 'Interface\\Icons\\spell_shadow_shadowwordpain.png', 'Mousover Dotting', "Enables mouseover-dotting within the combat rotation.")
+	ProbablyEngine.toggle.create('aoe', 'Interface\\Icons\\spell_shadow_mindshear.png', 'AOE', "Enables the AOE rotation within the combat rotation.")
 	ProbablyEngine.toggle.create('GUI', 'Interface\\Icons\\trade_engineering.png"', 'GUI', 'Toggle GUI', (function() miLib.displayFrame(mirakuru_shadow_config) end))
 end
 
@@ -56,7 +57,7 @@ local combatRotation = {
 		"modifier.cooldowns",
 		(function()
 			if fetch('miraShadowConfig', 'cd_bosses_only') then
-				if ProbablyEngine.condition["boss"]("target") then return true else return false end
+				if miLib.unitBoss("target") then return true else return false end
 			else return true end
 		end)
 	}},
@@ -64,11 +65,14 @@ local combatRotation = {
 	-- Silence
 	{"15487", {"target.interruptAt(20)", "target.distance < 30"}},
 	
+	-- Mass Dispel Mouseover --
+	{"32375", {"player.spell(32375).cooldown = 0", "modifier.lalt"}, "mouseover.ground"},
+	
 	-- Mouseover Multidotting --
 	{{
 		{"589", "mouseover.debuff(589).duration <= 6", "mouseover"},
 		{"34914", {"mouseover.debuff(34914).duration <= 6", "!player.moving"}, "mouseover"}
-	}, {"!player.target(mouseover)", "mouseover.enemy(player)"}},
+	}, {"!player.target(mouseover)", "mouseover.enemy(player)", "toggle.mdots"}},
 	
 	-- Defensive Cooldowns --
 	{{
@@ -597,6 +601,9 @@ local beforeCombat = {
 		{"121536", {"talent(2, 2)", "player.spell(121536).charges > 1", "player.buff(121557).duration < 0.2", "player.moving"}, "player.ground"}
 	}, {(function() return fetch('miraShadowConfig', 'speed_increase') end),
 		(function() return (not fetch('miraShadowConfig', 'speed_increase_combat') and true or false) end)}},
+	
+	-- Mass Dispel Mouseover --
+	{"32375", {"player.spell(32375).cooldown = 0", "modifier.lalt"}, "mouseover.ground"},
 	
 	-- Auto combat
 	{{

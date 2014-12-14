@@ -14,15 +14,40 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	local spellID		= select(12, ...)
 	
 	local specID = GetSpecializationInfo(GetSpecialization())
-	local critProcs = {[162919] = true}
-	local intProcs = {[177594] = true,[126683] = true,[126706] = true}	
-	local affAuras = {[113860] = true,[32182] = true,[80353] = true,[2825] = true,[90355] = true,[177051] = true,[177046] = true,[176875] = true,[176942] = true,[177594] = true,[126705] = true,[126683] = true,[176941] = true}
+	local mastProcs = {[176941] = true}
+	local critProcs = {[162919] = true,[177046] = true}
+	local intProcs = {[177594] = true,[126683] = true,[126705] = true}
+	local hasteProcs = {[177051] = true,[176875] = true,[90355] = true,[2825] = true,[80353] = true,[32182] = true}
 	
+	if event == "SPELL_CAST_START" and sourceGUID == UnitGUID("player") then
+		if spellID == 48181 then miLib.hauntCasted = true end
+	end
+	
+	if event == "SPELL_CAST_FAILED" and sourceGUID == UnitGUID("player") then
+		if spellID == 48181 then miLib.hauntCasted = false end
+	end
+	
+	if event == "SPELL_CAST_SUCCESS" and sourceGUID == UnitGUID("player") then
+		if spellID == 48181 or spellID == 74434 then miLib.shardTimer = GetTime() end
+	end
 	
 	if event == "SPELL_AURA_APPLIED" and sourceGUID == UnitGUID("player") then
-		-- Affliction
-		if specID == 265 then
-			if affAuras[spellID] ~= nil then miLib.affAuraProc = miLib.affAuraProc + 1 end
+		-- Haunt
+		if spellID == 48181 and miLib.hauntCasted then miLib.hauntCasted = false end
+		
+		-- Corruption
+		if spellID == 146739 then miLib.lastCorrupt = targetGUID end
+		
+		-- Mastery trinket/buff procs
+		if mastProcs[spellID] ~= nil then
+			miLib.hasMastProcs = miLib.hasMastProcs + 1
+			miLib.mastProcTimer = select(7,UnitBuff("player", GetSpellInfo(spellID)))
+		end
+		
+		-- Haste trinket/buff procs
+		if hasteProcs[spellID] ~= nil then
+			miLib.hasHasteProcs = miLib.hasHasteProcs + 1
+			miLib.hasteProcTimer = select(7,UnitBuff("player", GetSpellInfo(spellID)))
 		end
 		
 		-- Intellect trinket/buff procs
@@ -101,10 +126,11 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 	
 	
 	if event == "SPELL_AURA_REMOVED" and sourceGUID == UnitGUID("player") then
-		-- Affliction
-		if specID == 265 then
-			if affAuras[spellID] ~= nil then miLib.affAuraProc = miLib.affAuraProc - 1 end
-		end
+		-- Mastery trinket/buff procs
+		if mastProcs[spellID] ~= nil then miLib.hasMastProcs = miLib.hasMastProcs - 1 end
+		
+		-- Haste trinket/buff procs
+		if hasteProcs[spellID] ~= nil then miLib.hasHasteProcs = miLib.hasHasteProcs - 1 end
 		
 		-- Intellect trinket/buff procs
 		if intProcs[spellID] ~= nil then miLib.hasIntProcs = miLib.hasIntProcs - 1 end
@@ -168,6 +194,13 @@ ProbablyEngine.listener.register("COMBAT_LOG_EVENT_UNFILTERED", function(...)
 		end
 	end
 	
+	if event == "SPELL_AURA_REFRESH" and sourceGUID == UnitGUID("player") then
+		-- Haunt
+		if spellID == 48181 and miLib.hauntCasted then miLib.hauntCasted = false end
+		
+		-- Corruption
+		if spellID == 146739 then miLib.lastCorrupt = targetGUID end
+	end
 	
 	if event == "UNIT_DIED" then
 		if miLib.unitList[targetGUID] ~= nil then
